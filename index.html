@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>CURIOSITY</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+:root{
+  --bg:#0a0a0a;--surface:#111;--border:#222;
+  --text:#e8e4dc;--muted:#666;--dim:#444;
+  --accent:#c8a96e;--accent2:#7eb8c8;
+  --surprise:#d97a5a;
+  --love:#d96a8a;
+  --love-glow:rgba(217,106,138,0.4);
+}
+html,body{overscroll-behavior:none;}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'DM Mono',monospace;
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;padding:20px 16px;overflow-x:hidden;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+}
+.container{position:relative;z-index:1;width:100%;max-width:680px;}
+
+/* === START SCREEN === */
+.start-screen{
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;min-height:80vh;width:100%;
+}
+.start-logo{
+  font-family:'Playfair Display',serif;
+  font-size:32px;letter-spacing:0.5em;
+  color:var(--accent);text-transform:uppercase;
+  margin-bottom:14px;
+  text-shadow:0 0 20px rgba(200,169,110,0.4);
+}
+.start-sub{
+  font-size:11px;letter-spacing:0.3em;
+  color:var(--muted);text-transform:uppercase;
+  margin-bottom:60px;text-align:center;
+}
+.mode-cards{display:flex;flex-direction:column;gap:14px;width:100%;max-width:380px;}
+.mode-card{
+  padding:32px 24px;
+  border:0.5px solid var(--border);
+  border-radius:3px;
+  background:var(--surface);
+  cursor:pointer;
+  transition:all 0.25s ease;
+  position:relative;overflow:hidden;
+}
+.mode-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0.4;
+}
+.mode-card.love::before{background:linear-gradient(90deg,transparent,var(--love),transparent);opacity:0.6;}
+.mode-card:active{transform:scale(0.98);}
+.mode-card:hover{border-color:var(--accent);box-shadow:0 0 20px rgba(200,169,110,0.1);}
+.mode-card.love:hover{border-color:var(--love);box-shadow:0 0 20px var(--love-glow);}
+.mode-title{
+  font-family:'Playfair Display',serif;
+  font-size:24px;color:var(--text);margin-bottom:8px;
+}
+.mode-card.love .mode-title{color:var(--love);text-shadow:0 0 12px var(--love-glow);}
+.mode-card:not(.love) .mode-title{color:var(--accent);}
+.mode-desc{font-size:12px;line-height:1.6;color:var(--muted);}
+.mode-count{
+  font-size:10px;letter-spacing:0.2em;text-transform:uppercase;
+  color:var(--dim);margin-top:14px;
+}
+
+/* === MAIN VIEW === */
+.main-view{display:none;}
+.main-view.active{display:block;}
+header{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:18px;
+}
+.logo{
+  font-family:'Playfair Display',serif;
+  font-size:13px;letter-spacing:0.3em;
+  text-transform:uppercase;
+  text-shadow:0 0 12px rgba(200,169,110,0.2);
+  cursor:pointer;
+}
+.logo.human{color:var(--accent);}
+.logo.love{color:var(--love);text-shadow:0 0 12px var(--love-glow);}
+.header-right{display:flex;gap:14px;align-items:center;}
+.counter{font-size:11px;color:var(--muted);letter-spacing:0.1em;font-variant-numeric:tabular-nums;}
+.home-btn{
+  font-size:10px;color:var(--muted);cursor:pointer;
+  padding:6px 10px;border:0.5px solid var(--border);
+  border-radius:1px;letter-spacing:0.1em;
+}
+.home-btn:active{color:var(--text);}
+
+.mood-section{
+  margin-bottom:18px;padding:12px 16px;
+  border:0.5px solid var(--border);border-radius:2px;
+  background:rgba(255,255,255,0.01);
+}
+.mood-label{
+  font-size:9px;letter-spacing:0.25em;
+  color:var(--muted);text-transform:uppercase;margin-bottom:6px;
+}
+.mood-input{
+  width:100%;background:transparent;border:none;
+  color:var(--text);font-family:'DM Mono',monospace;
+  font-size:13px;outline:none;padding:2px 0;
+}
+.mood-input::placeholder{color:#3a3a3a;}
+
+.card{
+  background:var(--surface);border:0.5px solid var(--border);
+  border-radius:2px;padding:28px 24px;min-height:300px;
+  position:relative;overflow:hidden;
+  transition:opacity 0.4s ease;
+}
+.card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--accent),transparent);
+  opacity:0.5;
+}
+.main-view.love-mode .card::before{
+  background:linear-gradient(90deg,transparent,var(--love),transparent);opacity:0.6;
+}
+.card.surprise::before{
+  background:linear-gradient(90deg,transparent,var(--surprise),transparent);opacity:0.8;
+  box-shadow:0 0 24px rgba(217,122,90,0.3);
+}
+.surprise-tag{
+  display:none;font-size:9px;letter-spacing:0.3em;
+  color:var(--surprise);text-transform:uppercase;margin-bottom:12px;
+  text-shadow:0 0 8px rgba(217,122,90,0.4);
+}
+.card.surprise .surprise-tag{display:block;}
+.category{
+  font-size:10px;letter-spacing:0.25em;
+  color:var(--accent);text-transform:uppercase;margin-bottom:18px;
+}
+.main-view.love-mode .category{color:var(--love);}
+.fact-text{
+  font-family:'Playfair Display',serif;
+  font-size:19px;line-height:1.7;color:var(--text);margin-bottom:22px;
+}
+.lesson{
+  font-size:13px;line-height:1.7;color:var(--accent2);
+  border-left:1px solid var(--accent2);
+  padding-left:14px;margin-bottom:16px;
+  opacity:0;transition:opacity 0.6s ease;
+}
+.lesson.visible{opacity:1;}
+.source{font-size:10px;color:var(--muted);letter-spacing:0.05em;}
+
+/* Highlighted term in fact */
+.term{
+  color:var(--accent);
+  border-bottom:1px dotted var(--accent);
+  cursor:pointer;
+  padding:0 2px;
+  text-shadow:0 0 8px rgba(200,169,110,0.4);
+  transition:all 0.15s;
+}
+.main-view.love-mode .term{
+  color:var(--love);
+  border-color:var(--love);
+  text-shadow:0 0 8px var(--love-glow);
+}
+.term:active{transform:scale(0.96);}
+
+/* Popup */
+.popup-bg{
+  position:fixed;inset:0;background:rgba(0,0,0,0.85);
+  z-index:100;display:none;align-items:center;justify-content:center;
+  padding:20px;backdrop-filter:blur(8px);
+}
+.popup-bg.visible{display:flex;}
+.popup{
+  background:var(--surface);border:1px solid var(--accent);
+  border-radius:3px;padding:28px 24px;max-width:520px;width:100%;
+  max-height:80vh;overflow-y:auto;
+  box-shadow:0 0 40px rgba(200,169,110,0.3);
+}
+.popup.love-popup{
+  border-color:var(--love);
+  box-shadow:0 0 40px var(--love-glow);
+}
+.popup-title{
+  font-family:'Playfair Display',serif;
+  font-size:22px;color:var(--accent);
+  margin-bottom:4px;
+  text-shadow:0 0 12px rgba(200,169,110,0.4);
+}
+.love-popup .popup-title{color:var(--love);text-shadow:0 0 12px var(--love-glow);}
+.popup-sub{
+  font-size:10px;letter-spacing:0.2em;color:var(--muted);
+  text-transform:uppercase;margin-bottom:18px;
+}
+.popup-section{margin-bottom:14px;}
+.popup-section-title{
+  font-size:10px;letter-spacing:0.15em;text-transform:uppercase;
+  color:var(--accent2);margin-bottom:6px;
+}
+.popup-text{font-size:13px;line-height:1.7;color:var(--text);}
+.popup-close{
+  margin-top:18px;
+  padding:10px 20px;
+  background:transparent;border:0.5px solid var(--border);
+  color:var(--muted);font-family:'DM Mono',monospace;
+  font-size:12px;cursor:pointer;letter-spacing:0.1em;
+  width:100%;border-radius:1px;
+  text-transform:lowercase;
+}
+.popup-close:active{color:var(--text);border-color:var(--text);}
+
+.feedback{
+  margin-top:18px;padding-top:18px;
+  border-top:0.5px dashed var(--border);
+  opacity:0;transition:opacity 0.6s ease;
+}
+.feedback.visible{opacity:1;}
+.feedback-label{
+  font-size:9px;letter-spacing:0.2em;color:var(--muted);
+  text-transform:uppercase;margin-bottom:10px;
+}
+.feedback-buttons{display:flex;flex-wrap:wrap;gap:6px;}
+.fb-btn{
+  font-family:'DM Mono',monospace;font-size:11px;
+  padding:7px 11px;border:0.5px solid var(--border);
+  background:transparent;color:var(--muted);
+  cursor:pointer;border-radius:1px;transition:all 0.15s;
+}
+.fb-btn:active{transform:scale(0.96);}
+.fb-btn.selected{background:var(--accent);color:var(--bg);border-color:var(--accent);}
+.main-view.love-mode .fb-btn.selected{background:var(--love);border-color:var(--love);}
+
+.actions{display:flex;gap:10px;margin-top:18px;}
+.btn{
+  font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.1em;
+  padding:13px 18px;border:0.5px solid var(--border);
+  background:transparent;color:var(--muted);
+  cursor:pointer;border-radius:1px;transition:all 0.2s;
+  text-transform:lowercase;
+}
+.btn:active{transform:scale(0.98);}
+.btn.primary{border-color:var(--accent);color:var(--accent);flex:1;}
+.btn.primary:active{background:rgba(200,169,110,0.1);}
+.main-view.love-mode .btn.primary{border-color:var(--love);color:var(--love);}
+.main-view.love-mode .btn.primary:active{background:rgba(217,106,138,0.1);}
+
+.history-section{margin-top:24px;padding:12px 0;border-top:0.5px solid var(--border);}
+.history-toggle{
+  font-size:10px;letter-spacing:0.2em;color:var(--muted);
+  text-transform:uppercase;cursor:pointer;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.history-list{display:none;margin-top:12px;}
+.history-list.visible{display:block;}
+.history-item{
+  font-size:11px;line-height:1.5;color:#555;
+  padding:8px 0;border-bottom:0.5px dashed var(--border);
+}
+.history-item:last-child{border-bottom:none;}
+.history-item .h-cat{color:var(--accent);font-size:9px;letter-spacing:0.15em;text-transform:uppercase;}
+.history-item .h-fb{float:right;font-size:9px;color:var(--accent2);}
+
+footer{margin-top:24px;text-align:center;font-size:10px;color:var(--dim);letter-spacing:0.1em;}
+
+@keyframes pulse{0%,100%{opacity:0.3}50%{opacity:1}}
+.loading{display:inline-block;animation:pulse 1.2s ease-in-out infinite;}
+
+@media (max-width:380px){
+  .fact-text{font-size:17px;}
+  .card{padding:22px 18px;}
+  body{padding:14px 12px;}
+  .start-logo{font-size:26px;}
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- START SCREEN -->
+<div class="start-screen" id="start-screen">
+  <div class="start-logo">Curiosity</div>
+  <div class="start-sub">暇を、ひらめきの素材に</div>
+  <div class="mode-cards">
+    <div class="mode-card" onclick="startMode('human')">
+      <div class="mode-title">人間行動の原理</div>
+      <div class="mode-desc">認知バイアス、社会心理、神経科学、進化行動学、行動経済学、学習論など、人間の仕組みに関する事実。</div>
+      <div class="mode-count">245 facts</div>
+    </div>
+    <div class="mode-card love" onclick="startMode('love')">
+      <div class="mode-title">恋愛と関係性</div>
+      <div class="mode-desc">愛着スタイル、MBTI、出会い、関係の深化、葛藤、Z世代の恋愛など、人と人との繋がりの科学。</div>
+      <div class="mode-count">200 facts</div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN VIEW -->
+<div class="main-view" id="main-view">
+  <header>
+    <div class="logo" id="logo" onclick="goHome()">Curiosity</div>
+    <div class="header-right">
+      <div class="counter" id="counter">0 / 0</div>
+      <div class="home-btn" onclick="goHome()">home</div>
+    </div>
+  </header>
+
+  <div class="mood-section">
+    <div class="mood-label">いまの気分・状況</div>
+    <input type="text" class="mood-input" id="mood-input" placeholder="例: 暇 / やる気でない / 何か学びたい...">
+  </div>
+
+  <div class="card" id="card">
+    <div class="surprise-tag">unexpected</div>
+    <div class="category" id="category"></div>
+    <div class="fact-text" id="fact-text"></div>
+    <div class="lesson" id="lesson"></div>
+    <div class="source" id="source"></div>
+    <div class="feedback" id="feedback">
+      <div class="feedback-label">この事実は?</div>
+      <div class="feedback-buttons" id="fb-buttons"></div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn primary" onclick="nextFact()">次の事実 →</button>
+    <button class="btn" onclick="resetSeen()">リセット</button>
+  </div>
+
+  <div class="history-section">
+    <div class="history-toggle" onclick="toggleHistory()">
+      <span>履歴を見る</span>
+      <span id="history-arrow">▾</span>
+    </div>
+    <div class="history-list" id="history-list"></div>
+  </div>
+
+  <footer>暇を、ひらめきの素材に。</footer>
+</div>
+
+<!-- POPUP -->
+<div class="popup-bg" id="popup-bg" onclick="closePopup(event)">
+  <div class="popup" id="popup" onclick="event.stopPropagation()">
+    <div class="popup-title" id="popup-title"></div>
+    <div class="popup-sub" id="popup-sub"></div>
+    <div class="popup-section">
+      <div class="popup-section-title">特性</div>
+      <div class="popup-text" id="popup-trait"></div>
+    </div>
+    <div class="popup-section">
+      <div class="popup-section-title">恋愛での傾向</div>
+      <div class="popup-text" id="popup-love"></div>
+    </div>
+    <div class="popup-section">
+      <div class="popup-section-title">ヒント</div>
+      <div class="popup-text" id="popup-tips"></div>
+    </div>
+    <button class="popup-close" onclick="closePopup()">閉じる</button>
+  </div>
+</div>
+
+</div>
+
+<script>
+const HUMAN_FACTS = [{"c":"認知バイアス","f":"人は自分の信念を支持する情報だけを集め、反対の情報を無意識に避ける。Wasonの選択課題(1960)では被験者の約90%が、ルールを「確認する」情報を選び、「反証する」情報を選べなかった。","l":"何かを信じたら、まず「これが間違っている証拠」を探す習慣が、思考の質を大きく変える。","s":"Peter Wason / 選択課題実験","is_surprise":false},{"c":"認知バイアス","f":"最初に提示された数字が、その後の判断を引きずる。被験者にルーレットを回させた後、国連加盟国に占めるアフリカ諸国の割合を推測させると、ルーレットの数字が大きかった人ほど高い割合を答えた。","l":"交渉では最初に出す数字が結論を左右する。逆に相手の最初の数字に引きずられないよう意識する。","s":"Tversky & Kahneman (1974)","is_surprise":false},{"c":"認知バイアス","f":"成功した人だけを観察して教訓を抽出すると、失敗者が消えているために誤った結論に至る。第二次大戦中、被弾して帰還した戦闘機の損傷部位を補強する案に対し、Wald は「帰還しなかった機の損傷部位こそ補強すべき」と指摘した。","l":"成功例の研究より、失敗例の研究の方が真実に近い。「見えていない人々」を常に問う。","s":"Abraham Wald / 生存者バイアス","is_surprise":false},{"c":"認知バイアス","f":"人は能力が低いほど自分の能力を過大評価する。論理テストで下位25%に入った被験者は、自分の成績を平均より上だと答えた。逆に上位者は自分を過小評価する傾向がある。","l":"自信満々の人より、自分を疑っている人の方が実は能力が高いことが多い。","s":"Dunning & Kruger (1999)","is_surprise":false},{"c":"認知バイアス","f":"頻繁にメディアで報じられる出来事ほど、人はその発生確率を過大評価する。飛行機事故より自動車事故の方が遥かに多いのに、多くの人が飛行機を恐れる。","l":"「最近よく聞く」は「実際に多い」ではない。確率を考えるときは統計を見る。","s":"Tversky & Kahneman / 利用可能性ヒューリスティック","is_surprise":false},{"c":"認知バイアス","f":"同じ手術でも「生存率90%」と「死亡率10%」では患者の判断が大きく変わる。表現の枠組みだけで、医師ですら治療方針を変えてしまう。","l":"同じ事実でも、どう切り取られているかで自分の判断が誘導されている可能性を疑う。","s":"McNeil et al. (1982) / フレーミング効果","is_surprise":false},{"c":"認知バイアス","f":"得る喜びより、失う痛みの方が約2倍強く感じる。1万円拾った喜びより、1万円落とした痛みの方が強烈に記憶に残る。","l":"人を動かしたいなら「得られるもの」より「失うもの」を語る方が効く。ただし自分の判断には注意。","s":"Kahneman & Tversky / プロスペクト理論","is_surprise":false},{"c":"認知バイアス","f":"既に投資した時間や金を惜しんで、明らかに失敗の道を進み続けてしまう。コンコルド超音速機計画では、採算が取れないと判明後も英仏両国が開発を止められなかった。","l":"判断基準は「これまでいくら使ったか」ではなく「これから得られるものは何か」。過去は埋没コスト。","s":"コンコルドの誤謬 / サンクコスト","is_surprise":false},{"c":"認知バイアス","f":"事後になると「そうなると思っていた」と思い込む現象。9.11テロやリーマンショック後、多くの人が「予兆はあった」と語ったが、事前に予測した人はほぼいなかった。","l":"歴史は後から見れば必然に見えるが、当時は誰も予測できなかった。未来予測の難しさを過小評価しない。","s":"後知恵バイアス / Fischhoff (1975)","is_surprise":false},{"c":"認知バイアス","f":"自分の成功は自分の能力のおかげ、失敗は環境や運のせいにする。逆に他人の成功は運のおかげ、失敗は能力のせいだと考える傾向がある。","l":"自分を客観視するには「自分が他人だったらどう評価するか」を問う。","s":"自己奉仕バイアス / 根本的帰属の誤り","is_surprise":false},{"c":"認知バイアス","f":"ある一つの良い特徴があると、その人全体を良く評価してしまう。容姿が魅力的な被告は、同じ罪でも判決が軽くなる傾向が複数の研究で確認されている。","l":"印象に流されたと感じたら、「この情報がなかったらどう判断するか」を考える。","s":"Thorndike / ハロー効果","is_surprise":false},{"c":"認知バイアス","f":"頻繁に接触するものを好きになる現象。広告は内容より「何度見せるか」が効くという原理は、これに基づく。1968年Zajoncの研究では、無意味な文字でも繰り返し見せると好感度が上がった。","l":"好きになる理由を「内容」だと思っているが、実は「接触回数」かもしれない。","s":"Zajonc / 単純接触効果","is_surprise":false},{"c":"認知バイアス","f":"自分の意見に賛成する人を、能力が高いと評価する傾向がある。同じ発言でも、自分と意見が一致する人が言うと「鋭い」、違う人が言うと「短絡的」と感じる。","l":"自分の意見と違う人の発言こそ、内容で評価する練習をする。","s":"確証バイアスの応用 / 内集団バイアス","is_surprise":false},{"c":"認知バイアス","f":"複雑なものを単純化したい欲求から、本来連続的なものを2つに分けてしまう。「成功か失敗か」「敵か味方か」のように。実際の世界はほぼ全てがグラデーション。","l":"「AかBか」と問われたら、「Aの要素X%とBの要素Y%」と分解する。","s":"二分法的思考 / 認知の単純化","is_surprise":false},{"c":"認知バイアス","f":"人は変化を「損失」と感じる。現状維持の選択肢があると、たとえ客観的に劣っていても、それを選ぶ確率が高い。","l":"重要な決断では「もしゼロからスタートして、今の状態を選ぶか?」を問う。","s":"現状維持バイアス / Samuelson & Zeckhauser","is_surprise":false},{"c":"認知バイアス","f":"自分が選んだ後、その選択肢の魅力を過大評価する。ある実験で被験者にポスターを2枚から選ばせた後、選んだポスターの評価が選ばなかったポスターより上がった。","l":"「選んだから良い」のか「良いから選んだ」のかを区別する。","s":"認知的不協和 / Festinger","is_surprise":false},{"c":"認知バイアス","f":"人は自分が認識している以上に、他者から見られていない。スピーチでネクタイの曲がりを気にしても、聴衆の半分以上は気づいていない。","l":"恥ずかしさの大半は自分の頭の中だけ。他人はそこまで自分を見ていない。","s":"Gilovich / スポットライト効果","is_surprise":false},{"c":"認知バイアス","f":"自分の能力・知識・価値観が他人にも共有されていると過大に推定する。専門家ほど、素人には自分の知識がないことを想像できない。","l":"説明するときは「自分が知っていることを相手は知らない」を前提にする。","s":"知識の呪い / Camerer et al.","is_surprise":false},{"c":"認知バイアス","f":"ランダムな事象に意味のあるパターンを見出す。コイン投げで「表表裏裏」を「ランダムらしくない」と感じるが、これは実際にはランダムな出方の一つ。","l":"パターンを感じたら「これは偶然ではないと言える根拠は?」を問う。","s":"クラスタリング錯覚 / アポフェニア","is_surprise":false},{"c":"認知バイアス","f":"発生確率を直感で見積もると、実際の数字より、似ているイメージで判断してしまう。「リンダ問題」では、リンダの説明を読んだ後、「銀行員」より「フェミニストの銀行員」の方が確率が高いと答える人が大半だった。論理的には不可能。","l":"「もっともらしい」は「確率が高い」ではない。条件が増えるほど確率は下がる。","s":"連言錯誤 / Tversky & Kahneman","is_surprise":false},{"c":"意思決定","f":"選択肢が多すぎると、人はかえって選べなくなる。ジャムを6種類置いた売り場の方が、24種類置いた売り場より、購入率が10倍高かった。","l":"選択肢を増やすことが親切とは限らない。3〜5個に絞る方が決まる。","s":"Iyengar & Lepper (2000) / 選択のパラドクス","is_surprise":false},{"c":"意思決定","f":"人は満腹・空腹・疲労などの身体状態を、判断に影響することを過小評価する。イスラエルの裁判官の仮釈放判決を分析すると、食事直後は許可率が65%、食事直前は0%近くに落ちる。","l":"重要な決断は、満腹で休息した状態でする。空腹や疲労時の判断は信用しない。","s":"Danziger et al. (2011)","is_surprise":false},{"c":"意思決定","f":"締め切りがある方が、創造的な仕事の質が上がることがある。Parkinsonの法則によれば、仕事は与えられた時間に応じて膨張する。","l":"「時間があれば良くなる」は幻想。あえて短い締め切りを自分に課す方が動ける。","s":"Parkinson's Law (1955)","is_surprise":false},{"c":"意思決定","f":"未来の自分は別人だと脳は認識している。fMRIで自分の10年後を考えるとき、活動する脳領域は「他人」を考えるときと近かった。","l":"将来の自分のために今行動するのは、本能的には難しい。自動化や仕組み化で乗り越える。","s":"Hershfield et al. / 時間割引","is_surprise":false},{"c":"意思決定","f":"人は数字より物語に動かされる。アフリカの飢餓の統計を見せた被験者より、一人の少女ロキアの写真と物語を見せた被験者の方が、寄付額が2倍以上高かった。","l":"人を動かしたいなら、数字より「一人の具体的な物語」を語る。","s":"Slovic / 同情の崩壊","is_surprise":false},{"c":"意思決定","f":"未来の報酬は、近い未来ほど過大評価する。「今日1万円」と「1年後1.1万円」では今日を選ぶが、「10年後1万円」と「11年後1.1万円」では後者を選ぶ。同じ1年の差なのに。","l":"「今すぐ」の誘惑は、客観的にはそれほど価値がない。少し未来の自分を信じる仕組みを作る。","s":"双曲割引 / Laibson","is_surprise":false},{"c":"意思決定","f":"デフォルト選択肢が結果を支配する。臓器提供への同意率は、「同意する」がデフォルトの国で90%以上、「同意しない」がデフォルトの国で15%以下。同じ国民性でない。","l":"自分の生活でも、デフォルトを変えることで行動が変わる。意志力でなく環境設計で勝つ。","s":"Johnson & Goldstein (2003)","is_surprise":false},{"c":"意思決定","f":"小さなYesを積み重ねると、大きなYesも引き出せる。小さな看板設置を承諾した家は、後の大きな看板設置依頼も承諾率が10倍以上高かった。","l":"自分が誰かに依頼されたら、最初の小さな依頼に注意する。逆に依頼する側は、小さく始める。","s":"Freedman & Fraser / フット・イン・ザ・ドア","is_surprise":false},{"c":"意思決定","f":"あえて高い要求を断られた後、本命の依頼をすると承諾率が上がる。最初の依頼との対比で、本命が「妥協できる範囲」に見えてしまう。","l":"高すぎる要求を出された後、つい妥協していないかを点検する。比較対象を疑う。","s":"Cialdini / ドア・イン・ザ・フェイス","is_surprise":false},{"c":"意思決定","f":"複数の選択肢から選ぶ時、明らかに劣った「おとり」を加えると、本来選ばれにくかった選択肢が選ばれるようになる。エコノミスト誌の価格設定実験で、誰も選ばない「中間プラン」が、上位プランの売上を倍増させた。","l":"3つの選択肢のうち1つが明らかに劣っているとき、それは比較を操作するためのおとりかもしれない。","s":"Dan Ariely / おとり効果","is_surprise":false},{"c":"意思決定","f":"複雑な意思決定では、直感が論理より正確なことがある。チェスのグランドマスターは、可能な手を全て計算するのではなく、数秒で「良い手」を直感で選ぶ。経験が直感を磨く。","l":"十分な経験を積んだ領域では、直感を信頼する。ただし経験のない領域では論理に頼る。","s":"Gary Klein / 自然主義的意思決定","is_surprise":false},{"c":"意思決定","f":"重要な決断ほど、感情でしているのに「論理的に決めた」と思い込む。脳科学的には、感情処理を担う扁桃体が損傷した患者は、論理的能力は無事でも、何を食べるかすら決められなくなる。","l":"感情なしには決断できない。「論理的に決めた」と思うときも、背後の感情を観察する。","s":"Damasio / ソマティック・マーカー仮説","is_surprise":false},{"c":"意思決定","f":"目標を周囲に宣言すると、達成率が下がることがある。「宣言して褒められた」時点で脳が達成感を得てしまい、実行への動機が弱まる。","l":"目標は「達成してから」言う方がいい。または進捗を可視化する仕組みだけ宣言する。","s":"Gollwitzer / 代替達成","is_surprise":false},{"c":"意思決定","f":"報酬を約束すると、もともと楽しんでやっていた活動への興味が失われる。絵を描くのが好きな子に「描いたらご褒美」と約束すると、ご褒美なしの日には描かなくなる。","l":"内発的に楽しんでいることに外から報酬を持ち込むと、楽しみが消えるリスクがある。","s":"Lepper et al. / アンダーマイニング効果","is_surprise":false},{"c":"意思決定","f":"「あとで」と先延ばしする時、脳は「未来の自分」を「他人」として扱う。先延ばしは怠惰でなく、自己認識の問題。","l":"先延ばしを減らすには、未来の自分を「他人」でなく「自分の延長」として感じる工夫が要る。例: 将来の自分への手紙。","s":"時間的自己連続性 / Hershfield","is_surprise":false},{"c":"意思決定","f":"目の前に複数の選択肢があると、人は「比較できる軸」だけで判断する。レストランで「価格」と「評価」が並ぶと、料理の中身より、その2軸で比べてしまう。","l":"比較で選ぶ前に「本当に自分が求めている軸は何か?」を問う。","s":"評価の容易さ仮説 / Hsee","is_surprise":false},{"c":"意思決定","f":"重要でない選択(朝食メニュー等)を繰り返すと、その日の重要な判断の質が下がる。「決断疲れ」と呼ばれる現象。スティーブ・ジョブズが同じ服装をしていた理由。","l":"重要な判断のために、些細な選択を自動化・固定化する。","s":"Vohs et al. / Decision Fatigue","is_surprise":false},{"c":"意思決定","f":"後悔の予測が選択を歪める。「選ばなかった場合に後悔するか」を考えてしまうと、リスクを取りやすくなる。一方「選んだ場合に後悔するか」を考えると、保守的になる。","l":"後悔の予測は実際の後悔とずれる。どちらの後悔を想像しているかで判断が変わる。","s":"後悔回避 / Bell & Loomes","is_surprise":false},{"c":"意思決定","f":"集団で議論すると、最初は多数派だった意見がさらに極端な方向に偏る。「集団分極化」現象。SNSでの炎上もこれが関係する。","l":"集団で決めると穏健になると思いがちだが、逆に過激になる。少数派の意見を意図的に拾う。","s":"Stoner / Group Polarization","is_surprise":false},{"c":"意思決定","f":"人は確実な小さい得を、不確実な大きい得より好む。「80%の確率で1万円」と「100%で7000円」では後者を選ぶ人が多い。期待値は前者が高いのに。","l":"自分が「リスクを取れない」と感じる時、客観的にはリスクが小さい場合がある。","s":"プロスペクト理論 / リスク回避","is_surprise":false},{"c":"社会心理","f":"困っている人の周りに人が多いほど、誰も助けない確率が上がる。1964年のKitty Genovese事件では、38人の目撃者がいたとされ、誰も警察に通報しなかった。「他の誰かがやるだろう」という心理。","l":"集団でいる時こそ、「自分が動く」と意識する必要がある。「誰かが」は誰もやらない。","s":"Darley & Latané / 傍観者効果","is_surprise":false},{"c":"社会心理","f":"権威からの指示なら、人は他人に致死量の電気ショックを与えうる。Milgram実験で被験者の65%が、危険レベル(450V)までスイッチを押し続けた。「実験者が責任を取る」と言われただけで。","l":"権威への従順は本能。「上司の指示だから」を思考停止の理由にしないか定期的に点検する。","s":"Milgram (1961)","is_surprise":false},{"c":"社会心理","f":"普通の大学生に「看守」と「囚人」の役を与えただけで、6日で実験中止せざるを得ないほど暴力的になった。役割が人格を上書きする。","l":"「自分はそんなことしない」は環境次第で覆る。性格より状況の力を過小評価しない。","s":"Zimbardo / スタンフォード監獄実験","is_surprise":false},{"c":"社会心理","f":"明らかに間違っている多数派意見に、人は同調してしまう。Asch実験では、線の長さの判断という単純な課題でも、被験者の37%が明らかに間違った多数派に合わせた。","l":"自分が孤立して見える時、本当は多数派が間違っている可能性を残しておく。","s":"Asch / 同調実験","is_surprise":false},{"c":"社会心理","f":"頼まれごとに「理由」をつけるだけで承諾率が劇的に上がる。コピー機の順番待ちで「コピーを取らせてください」より「コピーを取らせてください、急いでいるので」の方が承諾率が高い。理由の中身は関係ない。","l":"頼む時は理由を添える。頼まれた時は、理由の中身を吟味する。","s":"Langer / プラセボ理由","is_surprise":false},{"c":"社会心理","f":"人から何かをもらうと、お返ししなければと感じる本能がある。試食販売、無料サンプル、レストランの最後のキャンディは、全てこの心理に基づく。","l":"親切を受けたら、それが意図的な誘導でないかを冷静に判断する。","s":"Cialdini / 返報性","is_surprise":false},{"c":"社会心理","f":"一度公にした立場を、人は撤回しにくい。「環境保護」と表明した人は、その後の行動も環境保護的になる傾向が強い。逆もまた然り。","l":"自分の言葉が自分を縛る。慎重に表明すれば、それが行動を変える力にもなる。","s":"コミットメントと一貫性","is_surprise":false},{"c":"社会心理","f":"残り少ない、期間限定、というだけで価値が上がって感じる。同じクッキーでも、瓶に2枚しか入っていない方が、10枚入っているより美味しく感じる。","l":"「希少」に惹かれた時、それは本当に必要なのか、希少だから欲しいのかを区別する。","s":"Worchel et al. / 希少性原理","is_surprise":false},{"c":"社会心理","f":"自分と少しでも共通点があると、信頼度が跳ね上がる。誕生日が同じ、出身が同じ、というだけで相手への協力意欲が大幅に増す。","l":"初対面で共通点を探すのは無意識の信頼構築。同時に、共通点を演出する相手にも注意する。","s":"類似性の魅力","is_surprise":false},{"c":"社会心理","f":"集団に属したいという欲求は、生存本能と同じくらい強い。社会的拒絶を受けると、脳の身体的痛みを処理する領域(前帯状皮質)が活性化する。","l":"「無視される」「仲間外れ」は本当に痛い。軽く扱わない。自分が誰かを無視していないかも問う。","s":"Eisenberger / 社会的痛み","is_surprise":false},{"c":"社会心理","f":"自分の集団のメンバーは多様だと感じるが、他集団は均一だと感じる。「うちのチームは個性的」「あの部署はみんな同じ」と感じる現象。","l":"「あの人たちは皆こうだ」と思った時、それは外集団均一性錯覚かもしれない。","s":"外集団均一性 / Quattrone","is_surprise":false},{"c":"社会心理","f":"無作為に色分けされたグループでも、人はすぐ自分のグループに肩入れし、他グループに不利な判断を下す。Tajfel最小条件集団実験。集団意識は些細なきっかけで生まれる。","l":"敵対心は理由がなくても生まれる。「なぜこの集団に属しているか」を定期的に問い直す。","s":"Tajfel (1971)","is_surprise":false},{"c":"社会心理","f":"うわさは、伝言ゲームのように歪んで広がるのではなく、「驚き」「感情」「実用性」のあるものが選ばれて広がる。退屈な真実より、刺激的なフェイクが速く拡散する。","l":"SNSで広がっている話ほど、感情的に「効きやすい」だけで真実とは限らない。","s":"Vosoughi et al. (2018) / MIT","is_surprise":false},{"c":"社会心理","f":"人は自分が公平だと信じたい。明らかに不公平な状況に置かれると、被害者を非難することで「世界は公平」と信じ続けようとする。性犯罪被害者への二次加害もこれが背景。","l":"被害者が非難される時、それは「世界が公平でないと困る」人々の防衛反応かもしれない。","s":"Lerner / 公正世界仮説","is_surprise":false},{"c":"社会心理","f":"人前で話すと、能力が高い人はさらに能力を発揮するが、能力が低い人はさらに低下する。観察されることが、既存のスキルを増幅する。","l":"練習は人目のない場所で。本番は得意なことを人前で。逆をやると逆効果。","s":"Zajonc / 社会的促進・抑制","is_surprise":false},{"c":"社会心理","f":"集団で作業すると、一人当たりの努力が減る。綱引きでは、人数が増えるほど一人当たりの力が下がる。「自分一人くらい」という心理。","l":"集団作業では、個人の貢献を見える化する仕組みが必要。匿名性は怠惰を生む。","s":"Ringelmann効果 / 社会的手抜き","is_surprise":false},{"c":"社会心理","f":"匿名性の中で人は規範を破りやすくなる。ハロウィンでマスクを被った子供は、お菓子を盗む確率が大幅に上がる。","l":"匿名のSNSで言いたいことが言える時、それは本心ではなく、匿名性が引き出したものかもしれない。","s":"Diener / 脱個人化","is_surprise":false},{"c":"社会心理","f":"言葉より、表情と声のトーンの方が信頼の判断に強く効く。よく「7-38-55のメラビアンの法則」が引用されるが、これは矛盾したメッセージに限った話で、誤用が多い。","l":"言葉と非言語が食い違う時、人は非言語の方を信じる。一致させることが信頼の鍵。","s":"Mehrabian (1971) / 誤用注意","is_surprise":false},{"c":"社会心理","f":"人は自分を見ている人を、自分を見ていない人より魅力的に感じる。「視線」だけで好意が生まれる。","l":"好意を示すのに高度なテクニックは要らない。視線を向けるだけで関係が変わる。","s":"視線研究 / Kellerman","is_surprise":false},{"c":"社会心理","f":"優しさは伝染する。一回の親切を受けた人は、別の人に親切にする確率が上がる。これは10人以上の連鎖で確認されている。","l":"自分の親切は、自分が見えない場所まで広がる。逆に意地悪も同じ。","s":"Fowler & Christakis (2009)","is_surprise":false},{"c":"社会心理","f":"報酬と感謝、どちらが行動を強化するかという研究で、報酬より「ありがとう」の方が継続率が高かった。お金は外発的、感謝は内発的動機を刺激する。","l":"誰かを動かしたい時、報酬を増やすより、感謝を伝える頻度を増やす。","s":"Grant & Gino (2010)","is_surprise":false},{"c":"社会心理","f":"困難を共に乗り越えた相手への愛着は強い。新兵訓練で厳しい訓練を受けた部隊ほど、結束が強くなる。「苦労の共有」が絆を作る。","l":"楽しい時間より、困難を共有した相手の方が深い関係になる。","s":"Aronson / イニシエーション効果","is_surprise":false},{"c":"社会心理","f":"人は権威の象徴(白衣、制服、肩書)に過剰に反応する。同じ指示でも、白衣を着た人からだと従う確率が大幅に上がる。","l":"権威の見た目に従っていないか定期的に問う。中身を見る。","s":"Bickman (1974)","is_surprise":false},{"c":"社会心理","f":"集団で意思決定すると、リスクの高い選択を取りやすくなる。これは「責任の分散」だけでなく、「リスクを取れる方が格好いい」という社会的価値観も影響する。","l":"集団で決めた「攻めの判断」は、一人で考え直す価値がある。","s":"Risky Shift現象","is_surprise":false},{"c":"社会心理","f":"沈黙する多数派は、声の大きい少数派に屈する。沈黙のスパイラル理論。Twitter等のSNSでも、強い意見を持つ少数のユーザーが世論に見える現象を生む。","l":"目立つ意見が多数派とは限らない。沈黙している人々の考えに想像を働かせる。","s":"Noelle-Neumann / 沈黙の螺旋","is_surprise":false},{"c":"社会心理","f":"対立する集団も、共通の敵や共通の目的があると協力する。Sherif少年キャンプ実験で、対立する2集団が水道トラブルという「共通の問題」を前に協調した。","l":"組織の対立を解消するには、より大きな共通課題を設定するのが効く。","s":"Sherif / Robbers Cave","is_surprise":false},{"c":"社会心理","f":"見知らぬ人と一緒にいる時、自分の感情を判断するのにその人の反応を参考にする。曖昧な状況で、周囲が冷静なら自分も冷静、周囲が慌てれば自分も慌てる。","l":"感情の伝染を意識する。リーダーの落ち着きは集団全体に影響する。","s":"社会的参照 / Schachter","is_surprise":false},{"c":"社会心理","f":"人は「自分の選択は自由だ」と思いたいので、強制されると反発する。禁止されると逆に欲しくなる「リアクタンス効果」。","l":"誰かに何かをさせたい時、強制ではなく「選ばせる」形にする。子育てから営業まで共通。","s":"Brehm / 心理的リアクタンス","is_surprise":false},{"c":"社会心理","f":"人前での失敗より、人前での見栄の方が、長期的な信頼を損なう。失敗を率直に認めるリーダーは、長期的に信頼を獲得する。","l":"取り繕うほど信頼を失う。素直に失敗を認める方が、結果として強い。","s":"プラットフォール効果","is_surprise":false},{"c":"社会心理","f":"親密な関係ほど、感謝を言葉にする頻度が下がる。「分かっているはず」という思い込みが、長期的な不満を生む。","l":"親しい人ほど、わざわざ感謝を言葉にする。「言わなくても伝わる」は幻想。","s":"Algoe / 感謝研究","is_surprise":false},{"c":"社会心理","f":"集団の中で発言する人は、賢く見える。発言の中身より、発言量が能力評価を左右する。","l":"会議で評価されたいなら、内容より「話す回数」を意識する。逆に他人を評価する時は中身を見る。","s":"Babble効果 / MacLaren","is_surprise":false},{"c":"社会心理","f":"親切な行為は、受けた人より、行った人の幸福度を強く上げる。寄付したお金で買い物させると、自分のために使うより幸福度が高い。","l":"自分を幸せにしたいなら、他人のために何かする。お金より時間の方が効く。","s":"Dunn et al. (2008)","is_surprise":false},{"c":"社会心理","f":"他人の感情は、距離が近いほど自分にも伝染する。微表情の模倣が無意識に起きて、相手の感情を「追体験」する。","l":"機嫌の悪い人と長くいると自分も悪くなる。逆に上機嫌な人と過ごす時間は投資。","s":"情動伝染 / Hatfield","is_surprise":false},{"c":"社会心理","f":"幸福度は周囲の人々から伝染する。友達が幸福だと自分も幸福になる確率が15%上がる。友達の友達まで影響する。","l":"幸福は環境で決まる部分が大きい。誰と時間を過ごすかが、自分の幸福度を決める。","s":"Christakis & Fowler","is_surprise":false},{"c":"社会心理","f":"嘘を見抜く正答率は、訓練を受けた警察官でも60%程度。一般人とほぼ変わらない。「目を合わせない」「そわそわする」は実は嘘の証拠ではない。","l":"嘘を見抜けると思っている人ほど、見抜けていない。確証バイアスが働く。","s":"Bond & DePaulo","is_surprise":false},{"c":"社会心理","f":"道徳的に行動した直後、人は不道徳な行動を取りやすくなる。「いいことをした」という感覚が、後の行動を緩める。","l":"自分が正しいことをした後ほど、油断しないように意識する。","s":"道徳的ライセンス効果","is_surprise":false},{"c":"社会心理","f":"目を描いた絵が貼ってあるだけで、人の不正行為が減る。「見られている感覚」が行動を変える。","l":"自分を律したい時、「誰かに見られている」状況を作るのが効く。例: 公開コミット。","s":"Bateson et al. (2006)","is_surprise":false},{"c":"社会心理","f":"人は自分のことを話す時、脳の報酬系が活性化する。お金をもらうのと同等の快感。SNSでの自己発信は中毒性を持つ。","l":"自分の話をする快感を、相手に与える側に回ると、強い印象を残せる。","s":"Tamir & Mitchell (2012)","is_surprise":false},{"c":"社会心理","f":"相手と同じ姿勢、ペースで話すと、無意識に親近感が増す。ミラーリングは交渉や面接で効果を持つ。","l":"信頼を作りたい時、相手のペース・姿勢・トーンに合わせる。意識しすぎるとバレるので軽く。","s":"カメレオン効果 / Chartrand","is_surprise":false},{"c":"社会心理","f":"集団で議論する時、最初に発言した意見が結論を強く規定する。Anchoringが集団でも起きる。","l":"会議では、誰がいつ最初に発言するかが、結論の方向を決める。","s":"集団的アンカリング","is_surprise":false},{"c":"神経科学","f":"脳は体重の2%しかないが、エネルギーの20%を消費する。思考は物理的に高コストな活動。","l":"頭を使うのは本能的に避けたくなる。だから「考える」より「習慣化する」方が続く。","s":"脳科学一般","is_surprise":false},{"c":"神経科学","f":"ドーパミンは「快楽の物質」ではなく、「予測と現実のずれ」で出る。期待通りなら出ない、予想以上なら大量に出る、予想外に悪いと減る。","l":"幸せを増やすには、期待を上げすぎないこと。サプライズを混ぜると、同じ刺激でも快感が増す。","s":"Schultz / 報酬予測誤差","is_surprise":false},{"c":"神経科学","f":"記憶は固定的ではない。思い出すたびに「再構成」され、その時の感情や文脈で書き換わる。だから昔の記憶ほど、実は捏造に近い。","l":"自分の昔の記憶を100%信じない。証拠が残っていないことは、自信を持って語らない。","s":"Loftus / 記憶の再構築","is_surprise":false},{"c":"神経科学","f":"脳は新しい体験を時間が長く感じる。子供時代が長く感じ、大人になると短く感じる理由はこれ。","l":"人生を「長く」感じたければ、新しい体験を増やす。同じルーチンの繰り返しは時間を圧縮する。","s":"主観的時間 / Eagleman","is_surprise":false},{"c":"神経科学","f":"睡眠中、脳は記憶を整理する。新しく学んだことは、寝ている間に長期記憶へ移される。徹夜で勉強すると、内容が頭に残らない。","l":"覚えたいなら、勉強より睡眠を優先する。「学んだ後の睡眠」が学習効果を決める。","s":"Walker / 記憶の固定化","is_surprise":false},{"c":"神経科学","f":"ストレスホルモン(コルチゾール)が長期間出続けると、記憶を司る海馬が縮む。慢性的なストレスは脳を物理的に変える。","l":"ストレス管理は「気の持ちよう」ではなく、脳の保護。物理的なダメージを防ぐ意識を持つ。","s":"Sapolsky / 慢性ストレス","is_surprise":false},{"c":"神経科学","f":"脳には「デフォルト・モード・ネットワーク」と呼ばれる、何もしていない時に活性化する回路がある。創造的なひらめきは多くがこの時に生まれる。","l":"何もしない時間が、創造性の源泉。常に忙しくしているとアイデアが枯れる。","s":"Raichle / DMN","is_surprise":false},{"c":"神経科学","f":"運動は脳に効く。30分の有酸素運動で、BDNF(脳由来神経栄養因子)が分泌され、神経細胞の成長を促す。","l":"勉強の前に運動。机に向かう前に20分歩くだけで、その後の集中力が変わる。","s":"運動と脳 / Ratey","is_surprise":false},{"c":"神経科学","f":"瞑想を8週間続けると、扁桃体(恐怖や不安を司る部位)が物理的に縮む。脳の構造そのものが変わる。","l":"心を強くしたいなら、メンタルテクニックより、瞑想で脳を物理的に変える方が効く。","s":"Hölzel et al. (2011)","is_surprise":false},{"c":"神経科学","f":"脳は痛みを「予測」する。実際の刺激より、これから来る痛みへの予測の方が、強い活性を引き起こす。","l":"恐れているもの自体より、恐れの予感が苦しみの本体。予測を変えれば苦しみは減る。","s":"Ploghaus et al.","is_surprise":false},{"c":"神経科学","f":"快楽は「期待」で活性化し、「実際の体験」では下がる。チョコレートを食べる前の方が、食べている最中より、ドーパミンが多く出る。","l":"幸せの大部分は「楽しみにする」段階にある。予定を組むこと自体が幸せを増やす。","s":"報酬予測 / Berridge","is_surprise":false},{"c":"神経科学","f":"ニューロンは新しい接続を作り続ける。「もう脳は変わらない」という古い説は否定された。70歳でも新しいスキルで脳は再配線される。","l":"何歳からでも遅くない。脳は学ぶたびに物理的に変わる。","s":"神経可塑性","is_surprise":false},{"c":"神経科学","f":"何かを覚えようとして「思い出せない」苦しみが、後の記憶定着を強くする。「テスト効果」と呼ばれ、繰り返し読むより、想起する練習の方が効率がいい。","l":"勉強は「読む」より「思い出す」。問題集を解く時間を増やす方が、教科書を読む時間より効く。","s":"Roediger & Karpicke","is_surprise":false},{"c":"神経科学","f":"複数の感覚で学んだ情報の方が記憶に残る。視覚だけより、視覚+音声+身体運動の方が記憶定着率が2倍以上高い。","l":"学習は「読むだけ」より「声に出す」「書く」「歩きながら」が効く。複数チャネルで脳に刻む。","s":"マルチモーダル学習","is_surprise":false},{"c":"神経科学","f":"脳は「目新しさ」に強く反応する。新しい場所、新しい人、新しい情報は、記憶に深く残る。","l":"重要な記憶を作りたければ、新しい環境で行う。教室より、カフェや散歩中の方が頭に残る。","s":"新奇性とドーパミン","is_surprise":false},{"c":"神経科学","f":"何かを完了する直前に中断されると、その内容を強く覚える。「ツァイガルニク効果」。完了したタスクより、未完了のタスクの方が記憶に残る。","l":"勉強を「区切りの良いところ」でなく「あえて途中」で止めると、続きが気になって翌日も再開しやすい。","s":"Zeigarnik (1927)","is_surprise":false},{"c":"神経科学","f":"ゾーン(フロー状態)に入った時、脳の前頭前野(自己批判を司る部位)が一時的に静かになる。「自意識が消える」のは脳機能の変化。","l":"集中したい時、自己批判の思考が邪魔をする。「うまくやろう」を捨てる練習がフローへの入口。","s":"Csikszentmihalyi / Flow","is_surprise":false},{"c":"神経科学","f":"アイデアが浮かぶのは、机に向かっている時ではなく、シャワー・散歩・寝る前など、リラックスして注意が散漫な時。脳のDMNが活発な瞬間。","l":"行き詰まった時、机から離れる。意外な場所での散漫な思考が、解決を運ぶ。","s":"Insight研究","is_surprise":false},{"c":"神経科学","f":"声に出して読む方が、黙読より20%以上記憶に残る。「自分が話すのを自分が聞く」ことで、複数の脳領域が同時に活性化する。","l":"重要な情報は、声に出して読む。誰もいない時でも、口に出すだけで違う。","s":"Production effect","is_surprise":false},{"c":"神経科学","f":"視覚は脳の40%以上を使う。他の感覚を圧倒する。視覚情報が他の感覚と矛盾する時、脳は視覚を優先する。腹話術師の声が人形から聞こえる錯覚もこれ。","l":"見たものを信じる前に「見ていないものは何か」を問う。視覚は強いが、全てではない。","s":"視覚優位","is_surprise":false},{"c":"神経科学","f":"言語が思考を形作る。言語に「未来形」がない言語(中国語など)を話す人は、貯蓄率が高い。未来を「今」と地続きに感じるから。","l":"自分の使う言葉が、自分の判断を形作っている。語彙を増やすことは、思考を増やすこと。","s":"Chen / 言語と経済行動","is_surprise":false},{"c":"神経科学","f":"うつ病は脳の炎症と関連がある。腸内環境を整えると、うつ症状が軽減することが複数の研究で示されている。「セロトニンの90%は腸で作られる」。","l":"心の不調は、心理だけでなく、食事・睡眠・運動で物理的に改善できる。","s":"腸脳相関 / Cryan","is_surprise":false},{"c":"神経科学","f":"音楽は脳の複数領域を同時に活性化する。鬱の改善、認知症の進行抑制、学習促進、痛みの軽減など、薬では難しい多面的効果を持つ。","l":"気分・集中・学習を整えたい時、音楽は手軽な脳ツール。場面で使い分ける。","s":"音楽神経科学","is_surprise":false},{"c":"神経科学","f":"脳は「失敗の予測」より「失敗そのもの」を強く学習する。だから完璧主義者ほど、挑戦を避ける。失敗しなければ学習しない。","l":"成長したいなら、失敗を計画的に増やす。「失敗しないこと」を目標にすると学べない。","s":"予測誤差学習","is_surprise":false},{"c":"神経科学","f":"脳は「自分の決断」と「他人の決断」で異なる回路を使う。自分で選んだことは継続しやすく、他人に決められたことは継続しにくい。","l":"続けたい行動は「選ばされる」のでなく「自分で選ぶ」形にする。たとえ結論が同じでも。","s":"自己決定理論 / Deci & Ryan","is_surprise":false},{"c":"神経科学","f":"嗅覚は唯一、視床を経由せず直接記憶領域に届く感覚。匂いが古い記憶を鮮明に蘇らせる「プルースト効果」の正体。","l":"覚えたいことに、特定の香りを組み合わせる。後でその香りを嗅ぐと記憶が蘇る。","s":"嗅覚と記憶 / Herz","is_surprise":false},{"c":"神経科学","f":"脳のミラーニューロンは、他人の行動を「自分がしているように」シミュレートする。だからスポーツ観戦でも筋肉に微弱な活動が起きる。","l":"人を見ることでも学べる。一流に近づきたいなら、一流が行動する場面を観察する。","s":"Rizzolatti / ミラーニューロン","is_surprise":false},{"c":"神経科学","f":"短時間の昼寝(10-20分)は、認知能力を回復させる。45分以上寝ると逆効果で、深い睡眠に入って起きづらくなる。","l":"昼寝はタイマーを必ずかける。10〜20分の戦略的睡眠が、午後の集中力を変える。","s":"NASA睡眠研究","is_surprise":false},{"c":"神経科学","f":"人は痛みを記憶する時、「ピーク」と「終わり」だけを覚えている。経過時間の長さや、平均的な痛みは記憶に残らない。","l":"つらい経験を終える時、最後を少しだけ良くする。記憶全体の印象が変わる。","s":"Kahneman / Peak-end rule","is_surprise":false},{"c":"神経科学","f":"自分の悲しみより、他人の悲しみに共感する時の方が、脳の感情処理回路は強く活性化することがある。共感は強力な神経メカニズム。","l":"他人の苦しみに過剰に共感して疲弊することがある。共感力が高い人ほど、距離を取る練習が必要。","s":"Singer / 共感の神経基盤","is_surprise":false},{"c":"進化行動学","f":"人間の脳は、安定した狩猟採集生活(数百万年)に最適化されている。現代社会(1万年)はまだ脳に追いついていない。だから加工食品やSNSにハマる。","l":"「現代では不適応」と感じる本能は、太古の環境では合理的だった可能性が高い。","s":"進化的不適合","is_surprise":false},{"c":"進化行動学","f":"砂糖と脂肪を強く求めるのは、それが希少だった時代の本能。現代の肥満は意志の弱さではなく、進化的にプログラムされた行動。","l":"食欲を意志で抑えるのは不利な戦い。環境を変える(視界から消す)方が効く。","s":"進化心理学","is_surprise":false},{"c":"進化行動学","f":"人間は仲間外れを「死」と同じレベルの脅威として処理する。狩猟採集時代、集団から外れることは命に直結したから。","l":"職場や学校での疎外感が異常に辛いのは、脳が「死の危機」と認識しているから。本能の問題。","s":"社会的拒絶の進化","is_surprise":false},{"c":"進化行動学","f":"人は150人前後までしか、安定した社会的関係を維持できない。「ダンバー数」。SNSのフォロワーが何千いても、本当に親しい人数は変わらない。","l":"人間関係には物理的な上限がある。広く浅くより、深く狭くの方が脳の設計に合う。","s":"Dunbar (1992)","is_surprise":false},{"c":"進化行動学","f":"赤ん坊の泣き声に大人が反応するのは、脳が特別に進化させた回路。「赤ちゃん泣き声」を聞くと、無関係な大人でも親としての本能が起動する。","l":"赤ん坊の泣き声に耐えられないのは正常な反応。脳がそう設計されている。","s":"親性スキーマ","is_surprise":false},{"c":"進化行動学","f":"人は「大きな目、丸い顔、短い手足」を可愛いと感じる。これは赤ん坊や子犬の特徴で、保護本能を引き出す。ディズニーキャラクターはこれを最大化している。","l":"「可愛い」は本能の反応。商品デザインから動物保護まで、応用範囲は広い。","s":"Lorenz / Kindchenschema","is_surprise":false},{"c":"進化行動学","f":"恐怖は「ヘビ・クモ・高所・暗闇」など、進化的に危険だったものに強く反応する。現代の真の脅威(車・砂糖・タバコ)には恐怖を感じにくい。","l":"恐怖の本能と、現代のリスクは一致しない。怖くないものほど、本当は危ない。","s":"準備された学習 / Seligman","is_surprise":false},{"c":"進化行動学","f":"人は協力する種だが、同時に「ただ乗り」を強く嫌う。協力しないのに恩恵だけ受ける人を、自分のコストを払ってでも罰しようとする。「利他的処罰」。","l":"フリーライダーへの怒りは本能。だから組織は「公平」が大事。「不公平」は人を強く動かす。","s":"Fehr & Gächter","is_surprise":false},{"c":"進化行動学","f":"狩猟採集時代、噂は生存情報だった。「あの人は信頼できる」「あの場所は危ない」。だから現代でも噂・ゴシップに強く惹かれる。","l":"ゴシップは時間の無駄に見えて、本能的な情報収集。完全には止められないが、節度は持つ。","s":"Dunbar / Gossip Theory","is_surprise":false},{"c":"進化行動学","f":"人間の女性は、生理周期によって魅力を感じる男性のタイプが変化する。排卵期は「男性的特徴の強い男性」に、それ以外は「優しそうな男性」に惹かれる。","l":"魅力の判断は固定的でない。ホルモンの影響を理解すれば、印象が変動するのは自然と分かる。","s":"Penton-Voak et al.","is_surprise":false},{"c":"進化行動学","f":"集団の中で「不公平な配分」を見ると、自分が損してでもそれを止めようとする。チンパンジーにも見られる行動。「公平」を感じることは生存に直結していた。","l":"報酬の絶対量より、他人との比較が幸福度を決める。給与の不満は、額より「公平感」の問題。","s":"最後通牒ゲーム","is_surprise":false},{"c":"進化行動学","f":"人は「動くもの」と「目」に敏感に反応する。捕食者を素早く発見する本能。だからスマホの通知や、SNSの「人の顔」に強く引き寄せられる。","l":"スマホがやめられないのは意志の問題ではない。本能を悪用したデザインに対抗する仕組みが要る。","s":"注意の進化","is_surprise":false},{"c":"進化行動学","f":"笑いは「危険ではない」というシグナル。子供がくすぐられて笑うのは、「軽い攻撃が攻撃ではない」と確認するため。笑いの起源は社会的安全確認。","l":"笑いは強力な信頼構築ツール。緊張をほぐすのに、論理より笑いの方が早い。","s":"Provine / 笑いの研究","is_surprise":false},{"c":"進化行動学","f":"嫉妬は男女で内容が異なる。男性は「肉体的浮気」に、女性は「感情的浮気」に強く嫉妬する。これは進化的に「子供の父性確証」と「資源の確保」に対応する。","l":"嫉妬の対象が違うことを理解すると、パートナー間の誤解が減る。","s":"Buss / 嫉妬研究","is_surprise":false},{"c":"進化行動学","f":"音楽と踊りは、集団の一体感を生むために進化した。同じリズムで動くと、互いへの信頼感と協力性が上がる。","l":"チームの結束を作りたいなら、一緒に「同期する」体験を作る。ライブ参加、運動会、合唱など。","s":"集団同期","is_surprise":false},{"c":"進化行動学","f":"人は「目に見えないもの」を信じやすい。神、運、ジンクス。これは「見えない捕食者を警戒する」進化的傾向の副産物と考えられる。","l":"信じる対象がない方が珍しい。宗教を持たない人も、別の「見えないもの」を信じている。","s":"Boyer / 認知宗教学","is_surprise":false},{"c":"進化行動学","f":"赤い色は注意を引き、覚醒を促す。性的興奮や攻撃性を高める。スポーツでは赤いユニフォームのチームの方が勝率が高いという研究もある。","l":"色は無意識に影響する。重要な場面では、色の選択を意識的にする。","s":"Hill & Barton","is_surprise":false},{"c":"進化行動学","f":"人間の脳は、火を使う調理によって栄養効率が上がり、急成長した。脳が大きくなったのは「料理」のおかげとする説がある。","l":"考えることはエネルギーが要る。良い食事は思考の前提条件。空腹で重要な判断をしない。","s":"Wrangham / Catching Fire","is_surprise":false},{"c":"進化行動学","f":"恋愛初期の脳は、薬物中毒に近い状態。ドーパミンが暴走し、相手のことしか考えられなくなる。この状態は通常2年で収まるよう設計されている。","l":"恋愛初期の判断は信用しない。大きな決断は、脳が正常に戻ってから。","s":"Fisher / 恋愛の神経科学","is_surprise":false},{"c":"進化行動学","f":"嘘をつく能力は、社会的知性の発達と共に進化した。子供は3〜4歳で嘘をつき始める。これは認知発達の指標とされる。","l":"嘘をつける=他人の心を推測できる、ということ。子供の嘘を頭ごなしに叱るより、認知発達のサインと捉える。","s":"心の理論 / Theory of Mind","is_surprise":false},{"c":"進化行動学","f":"あくびは集団で伝染する。これは「集団の覚醒レベル」を同期させる進化的機能と考えられる。共感能力が高い人ほどあくびが伝染しやすい。","l":"集団の感情は同期する。一人の機嫌の悪さがチーム全体に伝染することを忘れない。","s":"あくび伝染","is_surprise":false},{"c":"進化行動学","f":"夜行性の捕食者から逃れるため、人間は暗闇を恐れるよう進化した。だから子供が暗闇を怖がるのは正常で、合理的な反応。","l":"原始的な恐怖を笑わない。「合理的でないから」と切り捨てると、本能を活用する機会を失う。","s":"暗闇恐怖","is_surprise":false},{"c":"進化行動学","f":"群れの中で「目立つ」ことは、太古の世界では危険だった(捕食者に狙われやすい)。だから人前で話す恐怖は、根深い本能。","l":"スピーチが怖いのは普通。本能を意志で抑えるより、慣れによる脱感作が効く。","s":"スピーチ恐怖の進化","is_surprise":false},{"c":"進化行動学","f":"人間の女性の閉経は哺乳類では珍しい現象。「おばあちゃん仮説」によれば、孫の世話に専念することで集団全体の生存率を上げる進化戦略。","l":"年齢を重ねる価値は、生殖だけでない。経験を次世代に伝えること自体が、種の戦略。","s":"Hawkes / Grandmother Hypothesis","is_surprise":false},{"c":"進化行動学","f":"人間は「物語」を理解する脳を持つ唯一の動物。物語は社会的情報を効率的に伝える進化的ツール。事実より物語の方が記憶に残るのもこれが理由。","l":"何かを伝えたい時、データより物語にする。脳は物語用に最適化されている。","s":"ナラティブ脳","is_surprise":false},{"c":"行動経済学","f":"無料の力は強力。同じ商品でも、価格が1円から0円になると需要が爆発的に増える。「無料」は経済合理性を超える特別な力を持つ。","l":"無料の特典に飛びつく時、本当に必要かを問う。「無料」は判断を歪める。","s":"Ariely / The Power of Free","is_surprise":false},{"c":"行動経済学","f":"人は痛みを後回しにできるとき、合理的でない判断をする。クレジットカードの利用額は、現金より平均で2倍高い。「支払いの痛み」を感じないから。","l":"重要な買い物ほど現金で。痛みを感じる支払い方法を選ぶことが、節約の本質。","s":"支払いの痛み / Prelec","is_surprise":false},{"c":"行動経済学","f":"商品の価格表示で「9」が末尾にあると売上が上がる。199円と200円では、消費者は前者を「100円台」と認識する。「左端の数字バイアス」。","l":"価格を見たら、左端だけでなく全体を見る習慣をつける。意思決定の精度が上がる。","s":"Left-digit effect","is_surprise":false},{"c":"行動経済学","f":"高い商品を最初に見せると、後の商品が安く見える。ワインリストで一番高いワインを最初に出すレストランは、客単価が上がる。","l":"自分が「妥当な価格」と感じる基準が、見た順序で決まっていることを忘れない。","s":"アンカー価格","is_surprise":false},{"c":"行動経済学","f":"小さな金額の節約に夢中になり、大きな金額の判断を雑にする。100円安いお店のために30分歩くのに、家を買う時に100万円の差を「誤差」と感じる。","l":"金額の絶対値で時間を投資すべきか判断する。比率ではない。","s":"心理的会計 / Thaler","is_surprise":false},{"c":"行動経済学","f":"同じお金でも、入手経路で扱いが変わる。ボーナスや臨時収入は浪費しやすく、給料からの貯金は守られやすい。","l":"臨時収入こそ、給料と同じ口座に入れて区別をなくす。「特別なお金」は浪費しやすい。","s":"メンタル・アカウンティング","is_surprise":false},{"c":"行動経済学","f":"持っているものを手放すのに、同じものを買う2倍の対価を要求する。マグカップ実験では、所有者の希望売値は買い手の希望買値の2倍だった。","l":"所有しているだけで価値を過大評価している。「これを買おうとしているとしたら同額出すか?」を問う。","s":"保有効果 / Endowment Effect","is_surprise":false},{"c":"行動経済学","f":"選択肢が増えると、決断が遅くなり、後悔も増える。退職金プランの選択肢が10種類より2種類の方が、加入率が高かった。","l":"選択肢が多すぎる時、自分でフィルタリングする勇気を持つ。「選ばない」も選択。","s":"Iyengar","is_surprise":false},{"c":"行動経済学","f":"未来の自分の意志力を過信する。「今は無理だが、来週から始める」と人は言うが、来週の自分も同じ意志力しかない。","l":"「いつかやる」は永遠にやらない。今できる最小単位で今やる方が、現実的。","s":"投影バイアス / Loewenstein","is_surprise":false},{"c":"行動経済学","f":"目標は具体的で測定可能な方が達成される。「健康になる」より「週3回30分歩く」の方が達成率が3倍以上高い。","l":"曖昧な目標は脳が処理できない。動詞・数字・期限の3点セットで書く。","s":"Locke / 目標設定理論","is_surprise":false},{"c":"行動経済学","f":"人は「変化のコスト」を過大評価する。新しいスマホ、新しい職場、新しい習慣。実際に変えてみると適応コストは想像より小さい。","l":"「変えたい」と思っている時の躊躇は、ほぼ過大評価。3週間後の自分を信じる。","s":"適応の予測の誤り","is_surprise":false},{"c":"行動経済学","f":"罰金を導入すると、罰金を受け入れる代価として悪い行動が増えることがある。イスラエルの保育園で「迎えに遅れた親への罰金」を導入したら、遅刻が増えた。","l":"金銭的インセンティブが、道徳的判断を上書きする。お金で動機を作るのは慎重に。","s":"Gneezy & Rustichini","is_surprise":false},{"c":"行動経済学","f":"宝くじの当選者は、5年以内に金銭的に元の状態か、それ以下に戻る確率が高い。「収入の増加」だけでは幸福は持続しない。","l":"お金が増えれば幸せになるという仮説は、ある水準以上では成立しない。習慣と人間関係の方が重要。","s":"Brickman / 幸福の適応","is_surprise":false},{"c":"行動経済学","f":"年収800万円付近で、追加収入による幸福度の増加は鈍化する。それ以上は「お金で買える幸せ」の限界。","l":"年収アップが幸せの唯一の道、という思い込みを疑う。ある水準以上では時間・人間関係の方が効く。","s":"Kahneman & Deaton (2010)","is_surprise":false},{"c":"行動経済学","f":"経験への支出は、物への支出より幸福度が高い。物への満足は時間とともに下がるが、経験の記憶は美化されて残る。","l":"買うものに迷ったら、物より経験(旅行・学び・人との時間)を優先する。","s":"Van Boven / 経験消費","is_surprise":false},{"c":"行動経済学","f":"分けて支払う方が、まとめて支払うより痛みが小さい。サブスクが流行る理由。月1000円は「気にならない」が、年12000円なら考える。","l":"小さな定期支出を年単位で計算する習慣を持つ。「月いくら」より「年いくら」で判断。","s":"分割支払いの痛み","is_surprise":false},{"c":"行動経済学","f":"目の前の小さな確実な利益のために、長期の大きな利益を犠牲にする。「短期主義」は個人にも企業にもある。","l":"重要な判断は「1年後、10年後の自分はどう感じるか」を問う。今の自分の声を相対化する。","s":"時間割引","is_surprise":false},{"c":"行動経済学","f":"返品可能な商品の方が満足度が低い。「やっぱり返そうか」と考え続けるエネルギーが、満足を蝕む。","l":"選択は時に「取り返しのつかない」状態にする方が、満足度が上がる。","s":"Gilbert / 選択の心理","is_surprise":false},{"c":"行動経済学","f":"投資で損失が出た株を、利益が出た株より長く持ち続ける傾向がある。「損切り」ができない心理。","l":"投資判断は感情を排除する仕組みが必要。事前に「いつ売るか」をルール化する。","s":"Disposition effect / Shefrin","is_surprise":false},{"c":"行動経済学","f":"値段が高いワインは、安いワインより美味しいと感じる。脳のfMRIでも、価格を聞かされた直後、味覚処理の活動が変わる。","l":"高い=美味しいではない。価格情報を取り除いた状態で判断する習慣をつける。","s":"Plassmann et al.","is_surprise":false},{"c":"行動経済学","f":"ポイント制度は、現金より使う気を増やす。「ポイントは溜まったら使うもの」という心理が、不必要な消費を生む。","l":"ポイント制度は企業にとって有利な仕組み。「ポイントを使うために買う」を疑う。","s":"ポイントの心理","is_surprise":false},{"c":"行動経済学","f":"行動経済学の介入「ナッジ」で、退職金加入率はオプトアウト方式にすると60%→90%に上がる。選択を変えずに、デフォルトを変えるだけで。","l":"自分の生活でも「デフォルトを変える」だけで行動が変わる。意志に頼らず、環境を設計する。","s":"Thaler & Sunstein / Nudge","is_surprise":false},{"c":"行動経済学","f":"高額な商品をローンで買うと、購入時の幸福度は低く、後の負担感は高い。一方、貯金してから買うと、購入時の幸福度が高い。","l":"待ってから買う方が、満足度が上がる。「すぐ買える」は満足を奪う罠でもある。","s":"遅延消費の幸福","is_surprise":false},{"c":"行動経済学","f":"少ない選択肢から選ぶ方が、決断後の満足度が高い。「もっと良いものがあったかも」という疑念が小さいから。","l":"選択肢を絞ってから決める。全てを見比べないことが、満足の鍵。","s":"最大化と満足化 / Schwartz","is_surprise":false},{"c":"行動経済学","f":"値引きやクーポンは、絶対的金額より「割引率」で人を動かす。10%引きの方が、同等の金額の値引きより魅力的に見える。","l":"パーセントに惹かれた時、金額の絶対値も確認する。「90%引き」の元価格が異常な可能性。","s":"割引の心理","is_surprise":false},{"c":"行動経済学","f":"行動するコストが小さいほど、人は動く。寄付ボックスを目立つ位置に置くだけで、寄付額が増える。「面倒さ」が行動を止めている。","l":"自分にやってほしいことは、最も簡単にできる形に整える。意志より導線。","s":"摩擦の力 / フリクション","is_surprise":false},{"c":"行動経済学","f":"目標達成率は「達成したご褒美」より、「達成しなかったときの罰」の方が強く効く。損失回避の応用。","l":"続けたい習慣は、できなかった時に何か失う仕組み(コミットメント契約)を作る。","s":"Karlan / Stickk","is_surprise":false},{"c":"行動経済学","f":"高い目標と低い目標、どちらが達成しやすいか。高い目標を立てた方が達成度が高い。脳は目標を上方修正で受け止める。","l":"控えめな目標を立てるより、少し高すぎる目標を立てる。達成水準が全体的に上がる。","s":"Locke / 高目標仮説","is_surprise":false},{"c":"行動経済学","f":"人は環境を選ぶより、環境に適応する。意志力で習慣を作るより、習慣ができる環境に身を置く方が確実。","l":"自己管理力が足りないと感じたら、環境を変える。自分が変わるより環境を変える方が早い。","s":"環境決定論的見方","is_surprise":false},{"c":"行動経済学","f":"高所得者の方が時間を急いでいると感じる。お金の価値が時間の価値を圧迫する。逆に、時間に余裕のある人ほど幸福度が高い。","l":"時間を「お金で買えるもの」と捉えると、時間の価値が下がる。お金より時間を守る発想を持つ。","s":"DeVoe & Pfeffer","is_surprise":false},{"c":"学習・記憶","f":"覚えた直後から忘却が始まる。Ebbinghausの忘却曲線では、1時間で50%、24時間で70%が失われる。ただし、複数回復習すると忘却率は劇的に下がる。","l":"覚えたい内容は、24時間以内、3日後、1週間後の3回復習する。これだけで定着率が3倍になる。","s":"Ebbinghaus (1885)","is_surprise":false},{"c":"学習・記憶","f":"同じ時間勉強するなら、「分散して」やる方が「集中して」やるより記憶に残る。1日10時間より、10日1時間ずつの方が効く。","l":"テスト前の徹夜は短期的には効くが、長期記憶には残らない。日々の積み重ねが本質。","s":"分散学習効果","is_surprise":false},{"c":"学習・記憶","f":"複数のテーマを混ぜて勉強すると、それぞれの記憶定着率が上がる。「インターリービング学習」。脳が違いを比較するため、深い理解が生まれる。","l":"1日に1科目を集中するより、複数科目をローテーションする方が効く。スポーツ練習も同じ。","s":"Bjork / Interleaving","is_surprise":false},{"c":"学習・記憶","f":"教えると学べる。誰かに説明することで、自分の理解が体系化される。「Feynmanテクニック」は学習法として効果が証明されている。","l":"学んだことは、誰かに説明できるかチェックする。説明できないなら理解していない。","s":"Protégé Effect","is_surprise":false},{"c":"学習・記憶","f":"勉強した場所でテストを受けると成績が上がる。匂い、音、場所などの「文脈」が記憶に紐づいているから。","l":"重要な発表の準備は、本番と同じ環境で練習する。場所の力を活用する。","s":"Godden & Baddeley","is_surprise":false},{"c":"学習・記憶","f":"既存の知識と関連付けると、新しい情報の記憶定着率が上がる。「精緻化リハーサル」。意味のないキーワードを、自分の経験に結びつける作業。","l":"新しいことを学んだら「これは自分が知っている何に似ているか」を問う。記憶が網の目になる。","s":"精緻化処理 / Craik","is_surprise":false},{"c":"学習・記憶","f":"運動の翌日、学習効率が高くなる。BDNFの分泌が神経回路の成長を促す。","l":"重要な学習の前日に運動する。寝る前のスマホより、夕方の運動の方が翌日の学習を変える。","s":"Ratey / Spark","is_surprise":false},{"c":"学習・記憶","f":"自信を持って「分かった」と感じるとき、実は理解していないことが多い。「Illusion of Explanatory Depth」。多くの人がトイレや自転車の仕組みを説明できない。","l":"理解の自信は錯覚しやすい。本当に分かったか確認するには、説明させてみる。","s":"Rozenblit & Keil","is_surprise":false},{"c":"学習・記憶","f":"何かを学ぶ最も早い方法は、その分野の「失敗例」を見ること。成功は再現が難しいが、失敗の原因は普遍的。","l":"新しい分野に入る時、成功事例より失敗事例から学ぶ。痛みは普遍的、成功は文脈依存。","s":"反事実学習","is_surprise":false},{"c":"学習・記憶","f":"短期記憶の容量は7±2項目と長く信じられてきたが、最近の研究では4項目程度。スマホの電話番号を覚えにくいのも当然。","l":"覚えるべき項目を4つ以下に絞る。多すぎる選択肢は、認知限界を超えている。","s":"Cowan / Working Memory","is_surprise":false},{"c":"学習・記憶","f":"勉強中の「気が散る感覚」は、実は脳が情報を統合している重要な過程。完全集中より、適度な散漫さが理解を深める。","l":"集中できない時間も、無駄ではない。脳が裏で処理している可能性がある。","s":"認知の浮遊","is_surprise":false},{"c":"学習・記憶","f":"理解は段階を経る。Bloomのタクソノミーでは、記憶→理解→応用→分析→評価→創造の6段階。「分かった」と感じる段階で止まると応用ができない。","l":"学んだら、その知識を使って何か作る・解く・教える。「知っている」から「使える」へ。","s":"Bloom (1956)","is_surprise":false},{"c":"学習・記憶","f":"挫折経験は学習を加速する。脳科学的に、間違えた時に強い学習信号(報酬予測誤差)が出る。失敗のない学習は浅い。","l":"スムーズに進む学習は危険信号。難しい問題に取り組むことが、本物の成長を生む。","s":"Desirable Difficulties / Bjork","is_surprise":false},{"c":"学習・記憶","f":"ハンドライティングは、タイピングより記憶定着率が高い。手で書く動作が、脳の運動野と記憶を結びつける。","l":"重要なメモは手書きで。タイピングは速いが、記憶には残らない。","s":"Mueller & Oppenheimer","is_surprise":false},{"c":"学習・記憶","f":"スマホが机の上にあるだけで、集中力が下がる。視界に入っていなくても、脳のリソースが「スマホを気にする」ために使われる。","l":"集中したい時、スマホは別の部屋に置く。マナーモードでも不十分。","s":"Brain Drain effect / Ward","is_surprise":false},{"c":"学習・記憶","f":"音楽を聴きながらの勉強は、音楽に歌詞がない場合は集中を助けるが、歌詞がある場合は理解度を下げる。","l":"勉強中の音楽は、インストゥルメンタルに限る。歌詞のある音楽は、勉強と相性が悪い。","s":"音楽と学習研究","is_surprise":false},{"c":"学習・記憶","f":"完璧に理解してから次へ進むより、「ある程度分かったら次へ」の方が結果的に深く理解できる。「らせん学習」。","l":"一つの章を完璧にしてから次に行くと進まない。全体を一周してから、戻ってくる方が効く。","s":"螺旋型カリキュラム / Bruner","is_surprise":false},{"c":"学習・記憶","f":"睡眠の最初の数時間で、その日学んだ「事実」が定着する。後半の数時間で、「手続き(動作)」が定着する。","l":"知識を覚えたい日は早く寝る。スキルを練習した日は朝に弱くてもいい。","s":"Stickgold / 睡眠と記憶","is_surprise":false},{"c":"学習・記憶","f":"複雑なスキルは、最初は意識的に学ぶが、習熟するにつれ無意識化する。「自動化」されると、注意リソースが他に回せる。","l":"基本動作は徹底的に練習して自動化する。応用は、自動化の上に乗る。","s":"Automaticity","is_surprise":false},{"c":"学習・記憶","f":"目標を設定するだけで、実行率が上がる。「いつ・どこで・何をするか」を事前に決める「実行意図」は、達成率を2〜3倍にする。","l":"「やる」より「いつどこでやるか」を決める。具体性が行動を生む。","s":"Gollwitzer / Implementation Intention","is_surprise":false},{"c":"学習・記憶","f":"自分の学習進捗を可視化すると、続けやすくなる。「進歩感」が動機を生む。","l":"続けたい習慣は、見える形で記録する。アプリでもノートでもいい。進歩が見えると動機が湧く。","s":"Amabile / 進歩の原理","is_surprise":false},{"c":"学習・記憶","f":"人は「分からない」と「分かった」の中間状態が苦手。曖昧さに耐える力(認知的タフネス)は鍛えられる能力。","l":"分からないまま考え続ける力が、本当の学習力。すぐ答えを見るクセを疑う。","s":"曖昧さ耐性","is_surprise":false},{"c":"学習・記憶","f":"記憶は「思い出す回数」で強化される。読む10回より、思い出す3回の方が定着する。","l":"参考書を再読するより、白紙に書き出す方が効く。検索練習(Retrieval Practice)が王道。","s":"Karpicke & Blunt","is_surprise":false},{"c":"学習・記憶","f":"学習にはピーク時間がある。多くの人で午前10〜12時と夕方16〜18時が認知能力のピーク。","l":"重要な勉強はピーク時間に。眠い時間は単純作業に回す。1日の時間配分を変える。","s":"概日リズムと認知","is_surprise":false},{"c":"学習・記憶","f":"何かを「忘れる」のは記憶が消えるのではなく、「思い出す手がかり」が失われるだけ。だから手がかりを増やせば、ほぼ全ての記憶は復元可能。","l":"覚える時、複数の手がかり(色、場所、感情、関連性)と結びつけると、後で思い出しやすい。","s":"Tulving / Encoding Specificity","is_surprise":false},{"c":"感情・幸福","f":"幸福度には「セットポイント」がある。大きな出来事(結婚、昇進、事故)の後も、数ヶ月〜数年で元の水準に戻る。","l":"「これが手に入れば幸せ」は幻想。日々の小さな実践の方が、幸福を底上げする。","s":"Brickman / Hedonic Treadmill","is_surprise":false},{"c":"感情・幸福","f":"感謝を書き出す習慣で、幸福度が上がる。1日3つの「今日感謝したこと」を書くだけで、3週間で気分の改善が測定される。","l":"幸福は「持っているもの」を意識するかどうかで決まる。同じ状況でも感謝できるかが分岐点。","s":"Emmons / 感謝研究","is_surprise":false},{"c":"感情・幸福","f":"他人と比較すると幸福度が下がる。SNSで他人の「ハイライト」を自分の「日常」と比較する構造が、現代の不幸の一因。","l":"比較するなら「過去の自分」とだけする。他人との比較は時間の無駄。","s":"社会的比較理論","is_surprise":false},{"c":"感情・幸福","f":"人間関係の質が、幸福度の最大の予測因子。75年に及ぶハーバード成人発達研究の結論。学歴、収入、健康よりも強い。","l":"忙しさで人間関係を後回しにしない。長期的な幸福を決めるのは、関係の数と質。","s":"Vaillant / Grant Study","is_surprise":false},{"c":"感情・幸福","f":"幸福な人ほど、利他的な行動を取る。逆に、利他的な行動が幸福度を上げる。双方向の循環。","l":"気分が落ちた時、誰かに親切にすると気分が上がる。逆説的だが効く。","s":"親切と幸福 / Lyubomirsky","is_surprise":false},{"c":"感情・幸福","f":"金銭の使い道で、幸福度が変わる。「自分のため」より「他人のため」に使う方が、幸福度が高い。","l":"お金で幸せを買いたいなら、誰かのために使う。プレゼント、寄付、おごり。","s":"Dunn / Prosocial Spending","is_surprise":false},{"c":"感情・幸福","f":"自然の中で過ごす時間は、ストレスを劇的に減らす。森を20分歩くだけで、コルチゾール値が下がる。","l":"気持ちが沈んだら、まず外に出る。室内で考え続けるより、自然の中での散歩が効く。","s":"Forest Bathing研究","is_surprise":false},{"c":"感情・幸福","f":"目的意識のある人は、寿命が長い。「自分は何のために生きているか」が明確な人は、認知症のリスクも低い。","l":"目的は壮大でなくていい。「誰かのため」「これを伝えたい」など、具体的な目的を一つ持つ。","s":"Boyle et al. / 目的と寿命","is_surprise":false},{"c":"感情・幸福","f":"幸福を「目標」にすると、逆に幸福度が下がる。直接追わない方が手に入る。フローや関係性に没頭する副産物として現れる。","l":"「幸せになりたい」と考えるより、目の前のことに集中する。幸せは結果としてついてくる。","s":"幸福のパラドクス","is_surprise":false},{"c":"感情・幸福","f":"笑顔を作るだけで、気分が上向きになる。表情筋の動きが、脳に「楽しい」と信号を送る。「顔面フィードバック仮説」。","l":"気分を変えたい時、姿勢と表情から変える。心が動かない時は、体から動かす。","s":"Strack et al.","is_surprise":false},{"c":"感情・幸福","f":"幸せな結婚をしている人は、独身者より寿命が長い。逆に不幸な結婚は、独身よりも寿命を縮める。","l":"結婚しているかではなく、関係の質が寿命を決める。「とりあえず」の関係は健康に悪い。","s":"Holt-Lunstad","is_surprise":false},{"c":"感情・幸福","f":"短期的快楽(美食、買い物)と、長期的幸福は別物。むしろ短期的快楽の追求は、長期的幸福を蝕む。","l":"今すぐ気持ちいいことと、人生で良かったと感じることは違う。後者を選ぶ訓練が要る。","s":"Hedonic vs Eudaimonic","is_surprise":false},{"c":"感情・幸福","f":"親切な行為は、受けた人より行った人の幸福度を強く上げる。寄付したお金で買い物させると、自分のために使うより幸福度が高い。","l":"自分を幸せにしたいなら、他人のために何かする。お金より時間の方が効く。","s":"Dunn et al. (2008)","is_surprise":false},{"c":"感情・幸福","f":"日記を書くと、ストレスが下がる。特に「ネガティブな出来事を書き出す」と、その出来事への執着が減る。","l":"頭の中でループしている悩みは、書き出すと止まる。書くこと自体が認知処理。","s":"Pennebaker / 表出書字","is_surprise":false},{"c":"感情・幸福","f":"「未来を心配する」のと「過去を後悔する」のは、似た脳機能を使う。どちらも「今ここ」から離れている時に幸福度が下がる。","l":"幸福は「今ここ」にある。マインドフルネスはこの基本原理を訓練する技術。","s":"Killingsworth & Gilbert","is_surprise":false},{"c":"感情・幸福","f":"運動はうつ症状を、抗うつ薬と同等以上に改善することが、多くの研究で示されている。副作用なし、コストなし。","l":"気分が落ちた時、薬の前に運動を試す。週3回、30分の有酸素運動が基準。","s":"Blumenthal et al.","is_surprise":false},{"c":"感情・幸福","f":"幸福度の50%は遺伝、10%は環境、40%は意図的行動で決まるとされる。意外と自分でコントロールできる範囲は大きい。","l":"「自分は幸せになれない性格」は間違い。40%は行動で動かせる。","s":"Lyubomirsky / The How of Happiness","is_surprise":false},{"c":"感情・幸福","f":"未来の出来事の感情的影響を、人は過大評価する。「あれが手に入れば幸せ」「あれを失ったら絶望」は、実際にはそこまで強くない。","l":"今の感情予測を信じすぎない。良いことも悪いことも、思ったほど影響しない。","s":"Affective Forecasting / Gilbert","is_surprise":false},{"c":"感情・幸福","f":"通勤時間が長いと、給与アップでは補えないほど幸福度が下がる。「お金より時間」の代表例。","l":"住む場所や働き方を考える時、通勤時間を軽く見ない。1日2時間の差は、人生を変える。","s":"Stutzer & Frey","is_surprise":false},{"c":"感情・幸福","f":"睡眠不足は、感情のネガティブな側面を増幅する。同じ出来事でも、睡眠不足だと辛く感じ、怒りやすくなる。","l":"イライラした時、まず「ちゃんと寝ているか」を点検する。心の問題でなく、睡眠の問題かもしれない。","s":"Walker / Why We Sleep","is_surprise":false},{"c":"コミュニケーション","f":"人は話の内容より、話す人の自信を信じる。同じ予測でも、自信を持って言う専門家の方が支持される。実際の正答率と関係なく。","l":"自信のある発言を、内容で評価する習慣をつける。「自信」は能力の証拠ではない。","s":"Tetlock / 専門家研究","is_surprise":false},{"c":"コミュニケーション","f":"質問の仕方で答えが変わる。「車はどれくらい速くぶつかった?」と聞かれた被験者は、「接触した」と聞かれた被験者より、速度を高く答えた。","l":"質問は答えを誘導する。客観的事実を聞きたい時、中立的な言葉を選ぶ。","s":"Loftus / 誤情報効果","is_surprise":false},{"c":"コミュニケーション","f":"アイコンタクトは協力を生む。ただし、見つめすぎると逆に攻撃的に感じられる。3秒以上の凝視は、信頼から脅威に変わる。","l":"会話中の視線は、合わせては外す、を繰り返す。じっと見つめるのは逆効果。","s":"視線と協力","is_surprise":false},{"c":"コミュニケーション","f":"相手の名前を会話に挟むと、好感度が上がる。自分の名前は、脳が特別に処理する音。","l":"会話で相手の名前を1〜2回入れる。ただし不自然になるほど多用しない。","s":"カクテルパーティ効果","is_surprise":false},{"c":"コミュニケーション","f":"褒める時は具体的に。「すごい」より「あのプレゼンの最後のスライドが特に良かった」の方が、何倍も効く。","l":"曖昧な褒め言葉は、誰でも言える。具体的な観察を伝えると、相手は「見てくれている」と感じる。","s":"具体性原則","is_surprise":false},{"c":"コミュニケーション","f":"沈黙は強力なコミュニケーション手段。話している側より、聞いている側の方が主導権を持つ。","l":"会話で沈黙を恐れない。沈黙を埋めるために話すと、相手も浅い情報しか出さない。","s":"沈黙の力","is_surprise":false},{"c":"コミュニケーション","f":"「But」と言った瞬間、それより前に言ったことは打ち消される。「素晴らしい仕事だが、ここを改善してほしい」は、批判だけが残る。","l":"褒めと指摘を一緒にする時、「But」でなく「And」でつなぐ。または分けて伝える。","s":"言語学的構造","is_surprise":false},{"c":"コミュニケーション","f":"相手の言葉を要約して返すと、信頼が増す。「つまり○○ということですね」と確認するだけで、相手は「理解された」と感じる。","l":"相手に意見を伝える前に、相手の話を要約してみる。それだけで相手は心を開く。","s":"アクティブリスニング / Rogers","is_surprise":false},{"c":"コミュニケーション","f":"電話より対面の方が、嘘を見抜きにくい。視覚情報が多いと、それに注意を取られ、声の微細な変化を見逃す。","l":"重要な判断を要する時、対面より電話の方が真意が分かることがある。","s":"嘘の検出研究","is_surprise":false},{"c":"コミュニケーション","f":"テキストメッセージは、声のトーンや表情がないため、ネガティブに誤解されやすい。冗談が真剣な批判に読める。","l":"テキストでデリケートな話題を扱う時は、絵文字や前置きで、感情のトーンを補う。","s":"テキストコミュニケーションの限界","is_surprise":false},{"c":"コミュニケーション","f":"人は否定形を処理しにくい。「ピンクの象を想像しないで」と言われると、まずピンクの象が浮かぶ。子育てや指導で「〜するな」より「〜する」が効く。","l":"望ましい行動を伝える時、肯定形で言う。「走るな」より「歩いて」。","s":"否定の認知コスト","is_surprise":false},{"c":"コミュニケーション","f":"高い声より、低い声の方が信頼される。アナウンサーや政治家が訓練で低音を出すのもこのため。","l":"重要な発表の前に、声のトーンを整える。低めに、ゆっくり話すと説得力が増す。","s":"声と説得","is_surprise":false},{"c":"コミュニケーション","f":"自分の弱みを少し見せると、信頼が増す。完璧すぎる人は、近寄りがたく感じられる。","l":"全てを隠そうとせず、適度に弱さを開示する。プロフェッショナルさと人間味の両立。","s":"プラットフォール効果","is_surprise":false},{"c":"コミュニケーション","f":"説得において、両論併記の方が片方だけ提示するより効果的。「Aがいいです、ただしBにはこういう利点があります」の方が信頼される。","l":"自分の意見を通したい時、反対意見も認める。「絶対これしかない」より説得力が上がる。","s":"両面提示の優位","is_surprise":false},{"c":"コミュニケーション","f":"質問する側の方が、会話の主導権を持つ。話す側が「主役」に見えても、質問する側が話題を選んでいる。","l":"会話を導きたい時、話すより質問する。「何を聞くか」で会話の方向が決まる。","s":"質問の力","is_surprise":false},{"c":"宇宙物理学","f":"宇宙の星の数は、地球の砂粒の数より多いと推定される。観測可能な宇宙だけで10の22乗個以上。","l":"自分の悩みのスケールを、たまには宇宙のスケールで眺める。視点が変わる。","s":"NASA / 観測宇宙論","is_surprise":true},{"c":"宇宙物理学","f":"光は宇宙で最速だが、銀河の端から端までは光で10万年かかる。私たちが見ている星の光の多くは、何千年も前のもの。「今夜空にあるあの星」は、もう存在しないかもしれない。","l":"見えているものが「今」とは限らない。情報には時差がある。","s":"光速と宇宙論","is_surprise":true},{"c":"物理学","f":"原子は99.9999999999999%以上が「空っぽ」の空間。固いと感じる机も、本当はほとんどが何もない空間。電子の反発力で「物」になっている。","l":"見える世界と、その背後の構造は、まったく違う。「当たり前」を疑う訓練。","s":"原子物理学","is_surprise":true},{"c":"量子力学","f":"電子は観測されるまで「複数の場所に同時に存在する」。観測した瞬間に一つに決まる。私たちが見ていない時、世界はどうなっているか、誰にも答えられない。","l":"客観的事実だけで世界はできていない。観測する側の存在が、現実を形作る。","s":"量子力学","is_surprise":true},{"c":"生物学","f":"人間の体の細胞のうち、約半分は「人間でない」細菌などの微生物。「自分」は厳密には単一の生命体ではない。","l":"「自分」の境界は、思っているより曖昧。共生関係の中で「自分」は成立している。","s":"マイクロバイオーム研究","is_surprise":true},{"c":"生態学","f":"森の木は地下の菌類ネットワークを通じて、栄養と情報を交換している。「Wood Wide Web」と呼ばれる森林の通信網。","l":"競争に見える生態系は、実は協調的に動いている。表面の争いの下に、別の論理がある。","s":"Suzanne Simard","is_surprise":true},{"c":"地球科学","f":"地球の生物の99.9%は既に絶滅している。今いる種は、生命史のほんの一瞬の住人。","l":"「永遠に続く」と感じるものも、宇宙的時間では一瞬。今この時代に存在する偶然を思う。","s":"古生物学","is_surprise":true},{"c":"数学","f":"円周率πは無限に続き、繰り返しがない。理論上、πの中には、あなたの誕生日も、これから書く全ての文章も、含まれている。","l":"無限という概念は、直感では捉えきれない。日常の発想を一度離れる練習を、たまにする。","s":"円周率の性質","is_surprise":true},{"c":"統計学","f":"23人の部屋で、誕生日が一致するペアがいる確率は50%を超える。誕生日のパラドクス。直感と確率は大きく食い違う。","l":"「偶然そんなことあるわけない」は、直感の錯覚かもしれない。確率を計算する習慣を持つ。","s":"誕生日問題","is_surprise":true},{"c":"生物学","f":"クマムシは、宇宙空間でも、絶対零度近くでも、150℃の高温でも生き残る。地球上のあらゆる極限環境に適応する。","l":"「絶対無理」と思える環境でも、適応する生物がいる。限界の感覚を疑う。","s":"クマムシ研究","is_surprise":true},{"c":"宇宙生物学","f":"火星の1日(ソル)は24時間39分。地球とほぼ同じ。一方で、金星の1日は地球の243日、1年(225日)より長い。","l":"「時間」は地球の常識に過ぎない。当たり前の前提を、たまに揺さぶる。","s":"惑星科学","is_surprise":true},{"c":"医学","f":"プラセボ(偽薬)は、実は「効くと知っていても」効果がある。「これは偽薬です」と伝えても、症状が改善する研究結果がある。","l":"信じることの効果は、医学的にも測定可能。「気のせい」を侮らない。","s":"オープンラベル・プラセボ","is_surprise":true},{"c":"歴史","f":"クレオパトラが生きていた時代は、ピラミッドの建設時代より、月面着陸の時代に近い。クレオパトラの時代でさえ、ピラミッドは「古代の遺跡」だった。","l":"歴史のスケール感は、直感では掴めない。「古い」「新しい」を疑う。","s":"古代エジプト史","is_surprise":true},{"c":"歴史","f":"オックスフォード大学は、アステカ帝国より古い。ヨーロッパが文明的に進んでいたという神話を覆す事実。","l":"「先進」と「未開」のレッテルは、視点次第。歴史を別の側面から見る。","s":"世界史比較","is_surprise":true},{"c":"歴史","f":"日本の縄文時代は、エジプト王朝時代より長く続いた。1万年以上の「平和」を保った珍しい文明。","l":"「進歩」だけが文明の指標ではない。続いたことそのものに、別の価値がある。","s":"考古学","is_surprise":true},{"c":"科学史","f":"インターネットの原型(ARPANET)が動き始めたのは1969年。月面着陸と同じ年。技術の発展史で、「同じ年」の出来事を見ると、世界観が変わる。","l":"同じ時代に、見えない別の技術革新も進んでいる。表面の話題の下に、未来の種がある。","s":"技術史","is_surprise":true},{"c":"文化","f":"「ありがとう」を言う頻度が高い文化と低い文化がある。日本は高く、北欧諸国は低い。「言わなくても伝わる」文化と、「言葉で確認する」文化の違い。","l":"自分の常識が、別の文化では非常識。「当たり前」を相対化する。","s":"文化人類学","is_surprise":true},{"c":"言語学","f":"言語が思考を形作る。色の名前が違う言語の話者は、見える色も微妙に違う。ロシア語には「明るい青」と「濃い青」を別の単語で表す習慣があり、その区別が早い。","l":"自分の語彙が、自分の世界の解像度を決めている。言葉を増やすことは世界を増やすこと。","s":"Sapir-Whorf仮説","is_surprise":true},{"c":"歴史","f":"江戸時代の日本は、世界で最もリサイクルが進んだ社会だった。紙、布、金属、便まで、ほぼ全てが再利用された。現代の「持続可能性」は、実は古い知恵。","l":"進歩は常に新しいことではない。古い知恵に学べる場面は多い。","s":"江戸経済史","is_surprise":true},{"c":"歴史","f":"中世ヨーロッパの平均寿命が30〜40歳と言われるのは、乳児死亡率の高さによる。成人まで生きれば60〜70歳まで生きる人も多かった。","l":"統計の平均は、現実を歪めて見せる。中身を見る習慣を持つ。","s":"歴史人口学","is_surprise":true}];
+const LOVE_FACTS = [{"c":"愛着スタイル","f":"人の恋愛行動は4つの愛着スタイルで大きく説明できる: ｛安定型｝｛不安型｝｛回避型｝｛恐れ型｝。これらは幼少期の養育者との関係で形成され、大人の恋愛にも引き継がれる。","l":"自分のタイプを知ると、関係でハマるパターンが見える。「性格の問題」と思っていたものが、実はスタイルだった可能性。","s":"Bowlby & Ainsworth / 愛着理論","is_surprise":true},{"c":"愛着スタイル","f":"｛安定型｝は人口の約50%。「自分は愛されるに値する、他人は信頼できる」という基本前提を持つ。葛藤が起きても話し合えるし、独立も依存もバランスよくできる。","l":"安定型を目指せる。スタイルは固定ではなく、安全な関係を経験すると変化する。","s":"Hazan & Shaver (1987)","is_surprise":false},{"c":"愛着スタイル","f":"｛不安型｝は人口の約20%。「相手に見捨てられるのでは」という不安が強く、過剰に連絡を取ろうとしたり、関係の確認を頻繁にする。愛されたい欲求が強い分、相手の小さな変化に敏感。","l":"不安型は「相手の確認」より「自分を落ち着かせる仕組み」が要る。確認しても不安は消えない構造になっている。","s":"成人愛着研究","is_surprise":false},{"c":"愛着スタイル","f":"｛回避型｝は人口の約25%。「親しくなりすぎると自由を失う」と感じ、関係が深まると距離を取る。「忙しい」「一人の時間が欲しい」が口癖。冷たく見えるが、本人も葛藤している。","l":"回避型のパートナーに「もっと愛して」と詰めると、さらに引かれる。逆に距離を尊重すると近づく。","s":"Mikulincer & Shaver","is_surprise":false},{"c":"愛着スタイル","f":"｛恐れ型｝(混乱型)は人口の約5%。「親しくなりたい、でも怖い」という矛盾を抱える。近づくと逃げ、離れると追う。最も不安定なスタイルとされる。","l":"恐れ型は専門家の支援が役立つ場合が多い。一人で乗り越えようとせず、カウンセリング等を選択肢に。","s":"Bartholomew (1990)","is_surprise":false},{"c":"愛着スタイル","f":"｛不安型｝と｛回避型｝はカップルになりやすいが、最も苦しむ組み合わせ。不安型が「もっと近づきたい」と詰め、回避型が「距離を取りたい」と引く。互いの動きが互いの不安を強化する。","l":"このパターンに気づいたら、追いかけるのを止めて、逃げるのを止める。両者の意識的な変化が必要。","s":"Anxious-Avoidant Trap","is_surprise":false},{"c":"愛着スタイル","f":"｛安定型｝のパートナーがいると、もともと｛不安型｝や｛回避型｝だった人も、徐々に安定型に変化することがある。「earned secure(獲得型安定)」と呼ばれる現象。","l":"安定した関係を一度経験すると、自分のスタイルそのものが変わる。良い関係は学習機会。","s":"Saunders et al.","is_surprise":false},{"c":"愛着スタイル","f":"｛不安型｝の人は、関係が安定すると逆に不安になることがある。「平和=何かおかしい」と感じてしまう。葛藤や激情が「愛の証」だと無意識に思い込んでいる。","l":"穏やかな関係を「退屈」と感じたら、それは関係の問題でなく自分のスタイルの問題かもしれない。","s":"愛着とドラマ志向","is_surprise":false},{"c":"愛着スタイル","f":"｛回避型｝の人は、一人でいる時にこそ「会いたい」と思うが、いざ会うと「距離を取りたい」になる。「離れている時の幻想」と「現実」の落差が大きい。","l":"回避型のパートナーがあなたを思っている時間と、実際の行動は別物。行動だけで愛を判断しない。","s":"Levine & Heller / Attached","is_surprise":false},{"c":"愛着スタイル","f":"｛安定型｝同士のカップルは、別れる確率が他の組み合わせの半分以下。葛藤がないのではなく、葛藤の解決方法を持っている。","l":"安定型は退屈ではなく、葛藤を解決する技術を持っている。「燃え上がる恋」より長期的に幸せ。","s":"Mikulincer & Shaver","is_surprise":false},{"c":"愛着スタイル","f":"｛不安型｝は別れた後の苦痛が他のタイプより強い。脳のfMRIで、別れの場面を思い出すと、身体的痛みと同じ領域が活性化する。","l":"失恋の痛みは本物の痛み。「気の持ちよう」で乗り越えようとせず、時間と支援に頼る。","s":"Eisenberger / 失恋の脳科学","is_surprise":false},{"c":"愛着スタイル","f":"｛回避型｝は、別れた後しばらく経ってから後悔が来る。別れの直後はむしろ解放感を覚え、数ヶ月後に「あの人は良かった」と気づく。","l":"回避型の元パートナーから連絡が来るのは、別れて時間が経ってから。それは関係再開のチャンスでもあり、罠でもある。","s":"回避型の遅延後悔","is_surprise":false},{"c":"愛着スタイル","f":"愛着スタイルは固定ではなく、長期的な関係や治療で変化する。20代で｛不安型｝だった人が、30代で｛安定型｝になることは珍しくない。","l":"今のスタイルが一生続くわけではない。意識的な努力と良い関係で、人は変われる。","s":"Davila & Cobb","is_surprise":false},{"c":"愛着スタイル","f":"｛不安型｝の人は、メッセージへの返信時間で相手の愛情を測ろうとする。「3時間で返信=愛されている」「6時間=愛されていない」のように。実際には相手の都合の方が大きいのに。","l":"返信速度と愛情に相関はない。自分の不安を返信速度に投影していないか点検する。","s":"デジタル時代の愛着","is_surprise":true},{"c":"愛着スタイル","f":"｛回避型｝は、相手から「私たちの関係について話そう」と言われると、無意識にシャットダウンする。心拍数が上がり、防衛モードに入る。","l":"回避型のパートナーに大事な話をする時、いきなり「話そう」より、軽い文脈で始める。横並びの活動中(車・散歩)が効く。","s":"Gottman / 防衛反応","is_surprise":false},{"c":"愛着スタイル","f":"｛安定型｝の人は、葛藤を「関係を深めるチャンス」と捉える。｛不安型｝は「関係終了の予兆」と捉える。｛回避型｝は「うんざりする面倒」と捉える。同じ葛藤でも解釈が違う。","l":"葛藤の捉え方は学習で変えられる。「これは深める機会」と意識的にラベリングする練習が効く。","s":"葛藤の認知的枠組み","is_surprise":false},{"c":"愛着スタイル","f":"幼少期に親が予測不可能だった子供は、｛不安型｝になりやすい。「いつ愛されるか分からない」状態への適応。「機嫌が良いと優しい、悪いと冷たい」親に育てられた人に多い。","l":"自分のスタイルは「自分の性格」ではなく「環境への適応」。責めず、観察する視点を持つ。","s":"Ainsworth Strange Situation","is_surprise":false},{"c":"愛着スタイル","f":"幼少期に親が感情的に不在だった子供は、｛回避型｝になりやすい。「期待しなければ傷つかない」という戦略。表面的には自立して見える。","l":"回避型は「強い」のではなく「自分を守る方法を学習した」結果。本人も繋がりを求めている。","s":"Mary Main","is_surprise":false},{"c":"愛着スタイル","f":"愛着スタイルは「自分用」と「相手選び」で別の影響を持つ。｛不安型｝は｛回避型｝を魅力的と感じ、｛回避型｝は｛不安型｝を「ちょうどいい距離感の人」と感じてしまう。","l":"魅力を感じる相手と、幸せになれる相手は別物。「ピンとくる」感覚を疑う訓練が要る。","s":"愛着の引力","is_surprise":false},{"c":"愛着スタイル","f":"｛安定型｝の人は、最初は「退屈」と感じられがち。ドラマや起伏が少ないから。｛不安型｝の人は、刺激のある関係を「愛」と勘違いしやすい。","l":"「ドキドキしない」は「相性が悪い」のではなく「健全」かもしれない。長期視点で評価する。","s":"刺激と愛の混同","is_surprise":false},{"c":"愛着スタイル","f":"愛着スタイルを知っているだけで、関係が改善する。「今、自分は不安型モードになっている」と気づくだけで、行動が変わる。","l":"自分のパターンに名前をつけると、客観視できる。これだけで関係は変わる。","s":"メタ認知の効果","is_surprise":false},{"c":"愛着スタイル","f":"｛不安型｝の人は、別れた相手のSNSをチェックする頻度が高い。「動向を知れば不安が減る」と感じるが、実際には不安が増幅する。","l":"別れた相手のSNSは、見るほど苦しくなる。物理的にブロック・ミュートが、感情を回復させる近道。","s":"デジタル失恋","is_surprise":false},{"c":"愛着スタイル","f":"｛回避型｝の人がパートナーシップに入ると、無意識に「欠点」を探し始める。「この人と続けるべきか」と常に評価している。これは愛していないのではなく、防衛機制。","l":"回避型のパートナーが時々離れて見えるのは、評価モードに入っているから。距離を取って、戻ってくるのを待つ。","s":"Deactivating strategies","is_surprise":false},{"c":"愛着スタイル","f":"愛着スタイルは「親密な関係」でのみ強く現れる。職場や友人関係では｛安定型｝のように振る舞えても、恋愛では｛不安型｝が顔を出す人は多い。","l":"職場で問題ない人が、恋愛で別人になる。これは矛盾ではなく、愛着システムが恋愛で発動する仕組み。","s":"愛着の文脈依存性","is_surprise":false},{"c":"愛着スタイル","f":"自分のスタイルを変えたい時、｛安定型｝の友人やセラピストとの関係を意識的に作るのが効く。「安全な関係」の経験が、脳の予測モデルを書き換える。","l":"スタイルを変えるには「読書」より「体験」。安定型と過ごす時間を増やすことが、自分の変化を生む。","s":"earned secure attachment","is_surprise":false},{"c":"MBTI×恋愛","f":"｛INFP｝は理想の愛を強く求める「夢見るロマンチスト」。深い感情的繋がりを最も重視するが、現実の関係で「これは違う」と感じやすく、相手に過剰な理想を投影する傾向がある。","l":"理想を持つのは美しいが、現実の人間との関係を「不十分」と感じやすい。完璧でない相手を愛する練習が成長になる。","s":"MBTI恋愛特性","is_surprise":false},{"c":"MBTI×恋愛","f":"｛INTJ｝は恋愛においても戦略的。「この人と長期的に成長できるか」を基準に選ぶ。感情表現は苦手だが、選んだ相手には深くコミットする。","l":"INTJに愛されたら、それは「論理的に選ばれた」結果。派手な愛情表現を求めるとすれ違う。","s":"NT型の恋愛傾向","is_surprise":true},{"c":"MBTI×恋愛","f":"｛ENFP｝は恋愛初期にもっとも輝く。新鮮さ、可能性、深い対話を愛する。ただし「日常」に入ると退屈を感じやすく、「あの頃の輝きが消えた」と関係を疑い始める。","l":"ENFPは「初期の魔法」を関係の指標にしない訓練が要る。落ち着いた関係の中の小さな新鮮さに目を向ける。","s":"NF型恋愛","is_surprise":false},{"c":"MBTI×恋愛","f":"｛ENTJ｝は明確で力強いリーダーシップで関係を引っ張るが、感情の機微を見落としがち。パートナーの「察してほしい」が伝わらず、すれ違う。","l":"ENTJと付き合うなら、感情は言葉で明確に。「察してほしい」は通じない言語。","s":"NT型コミュニケーション","is_surprise":false},{"c":"MBTI×恋愛","f":"｛ISFJ｝は最も献身的なタイプの一つ。パートナーの小さな好みを覚え、静かに尽くす。ただし自分の不満は口に出さず、ある日突然爆発することがある。","l":"ISFJの愛は見えにくい形で表現される。気づいて言葉で感謝するだけで、関係の質が変わる。","s":"SJ型献身","is_surprise":false},{"c":"MBTI×恋愛","f":"｛ESFP｝は今を生きるタイプ。デートを楽しく演出するのが得意。一方で「将来の計画」「真剣な話」を避ける傾向があり、関係を深める段階で課題が出る。","l":"ESFPと長期関係を望むなら、深い話を「楽しい雰囲気」の中に混ぜる工夫が要る。重く構えると逃げられる。","s":"SP型の傾向","is_surprise":false},{"c":"MBTI×恋愛","f":"｛INFJ｝×｛ENTP｝は古典的に語られる「黄金ペア」。ENTPの自由な発想とINFJの深い洞察が補完する。ただしENTPの軽さがINFJに「真剣さが足りない」と感じさせることも。","l":"理想のペアでも自動的にうまくいくわけではない。MBTIは「相性の説明」より「すれ違いの予測」に使える。","s":"Type相性論","is_surprise":false},{"c":"MBTI×恋愛","f":"｛ISTP｝は感情を言葉にするのが最も苦手なタイプの一つ。愛情は行動(修理してくれる、一緒にいてくれる)で示す。「愛してる」を言わせようとすると関係が壊れる。","l":"愛は言葉だけではない。行動で愛を示すタイプを「冷たい」と判断しない。","s":"ST型の表現","is_surprise":false},{"c":"MBTI×恋愛","f":"｛ENFJ｝は「相手の成長」を愛する。パートナーが夢を追うのを支援することに喜びを感じる。一方で「自分のニーズ」を後回しにしすぎる傾向。","l":"ENFJと付き合うなら、相手にも「自分の夢」「したいこと」を聞き続ける。尽くされっぱなしは関係を歪める。","s":"NF型の愛","is_surprise":false},{"c":"MBTI×恋愛","f":"｛INTP｝は恋愛そのものに不器用。論理で考えすぎて、感情的な瞬間を逃す。ただし一度信頼すると、深く誠実な関係を築く。","l":"INTPの「考えすぎて行動できない」は欠点でなく特性。気長に待つ価値がある。","s":"NT型恋愛慎重","is_surprise":false},{"c":"MBTI×恋愛","f":"｛ESTJ｝は伝統的で安定志向。「結婚→家庭→子供」のような順序を大事にする。パートナーにも明確な役割と方向性を求める傾向。","l":"ESTJと付き合うなら、関係の「次のステップ」を明確にする。曖昧な状態はストレスになる。","s":"SJ型計画性","is_surprise":false},{"c":"MBTI×恋愛","f":"｛ISFP｝は愛情を静かに、深く感じるタイプ。派手な表現はしないが、内側では激しく愛している。誤解されやすい愛し方。","l":"ISFPの「静かさ」は無関心ではない。日常の小さな気遣いに、深い愛が込められている。","s":"SP型の内的世界","is_surprise":false},{"c":"MBTI×恋愛","f":"｛ENTP｝は議論好き。パートナーとも知的な議論を楽しむが、相手にとっては「攻撃されている」と感じることがある。","l":"ENTPの議論は愛情表現の一つ。本気で否定しているのではなく、考えを深めたいだけ。","s":"NT型コミュニケーション","is_surprise":false},{"c":"MBTI×恋愛","f":"｛INFP｝×｛ENFJ｝の組み合わせは、互いの感情的深さで惹かれ合う。ただしINFPの内向性とENFJの外向性で、社交場面でずれが出やすい。","l":"似たタイプより「補完するタイプ」の方が成長が大きい。違いを楽しめる関係が長く続く。","s":"補完性原則","is_surprise":false},{"c":"MBTI×恋愛","f":"｛ESTP｝は恋愛においてもアクション派。デートはアクティビティ重視で、座って話すより一緒に体験することを好む。","l":"ESTPと深まりたいなら、レストランより冒険に誘う。動きの中で関係が深まるタイプ。","s":"SP型のデート傾向","is_surprise":true},{"c":"MBTI×恋愛","f":"｛ENFJ｝×｛INFP｝、｛ENTP｝×｛INFJ｝など、E×Iの組み合わせは多くの研究で安定性が高い。エネルギーレベルの違いが、互いの過剰さを中和する。","l":"自分と「全く同じ」より、エネルギーが違うパートナーの方が長続きしやすい。","s":"内向外向の補完","is_surprise":false},{"c":"MBTI×恋愛","f":"｛INTJ｝×｛ENFP｝の組み合わせは「目標達成と冒険」の補完。INTJの計画性をENFPの発想力が広げ、ENFPの散漫さをINTJの集中力が支える。","l":"似ているより違う方が、互いに学ぶことが多い。相性は「同じ」ではなく「補完」で測る。","s":"NT×NF補完","is_surprise":false},{"c":"MBTI×恋愛","f":"｛ISTJ｝は最も浮気しないタイプとされる。一度コミットすると、論理的・道徳的にそれを破ることを嫌う。安定の代名詞。","l":"ISTJの愛は派手ではないが、揺るがない。「燃え上がる」を期待すると違うが、「続く」を求めるなら最強。","s":"SJ型の忠誠","is_surprise":false},{"c":"MBTI×恋愛","f":"MBTIは性格の傾向を示すが、関係の成否を決めるのは「タイプ」より「成熟度」。同じタイプでも、自己理解が深い人と浅い人で関係の質は全く違う。","l":"相手のMBTIより、その人が自分のパターンを理解しているかを見る。自己認識のある人は、どのタイプでも関係を築ける。","s":"成熟と関係性","is_surprise":false},{"c":"MBTI×恋愛","f":"｛ENFP｝と｛INTJ｝、｛INFJ｝と｛ENTP｝などの「Goldenペア」は科学的根拠が薄い。MBTIは指標として有用だが、相性論として絶対視するのは危険。","l":"MBTIは「自分を知る道具」として使う。「相手選びの基準」にすると、選択肢を狭めて損する。","s":"MBTI批判的見方","is_surprise":false},{"c":"MBTI×恋愛","f":"｛INFJ｝はパートナーの本音を見抜く能力が高いとされる。ただし「分かりすぎて、相手の悪い面まで見える」ことで関係が苦しくなることがある。","l":"洞察力が高いほど、関係で意識的に「見ない」「考えすぎない」練習が要る。","s":"NF型直観","is_surprise":false},{"c":"MBTI×恋愛","f":"｛ESFJ｝は「みんな仲良く」を最も大事にするタイプ。パートナーが家族や友人に受け入れられるかを重視する。「自分たちだけの愛」より「集団の中の愛」。","l":"ESFJと付き合うなら、その人の周囲とも良い関係を築く。それが関係の安定に直結する。","s":"SJ型と社会性","is_surprise":false},{"c":"MBTI×恋愛","f":"｛INTP｝×｛ENFJ｝は「論理と感情」「内省と社交」の補完。INTPがENFJに引き上げられ、ENFJがINTPに深さを得る。互いの欠点を補える組み合わせ。","l":"自分の弱点を補ってくれる相手は、最初は「面倒」に感じる。その「面倒」が成長機会。","s":"成長と相補性","is_surprise":false},{"c":"MBTI×恋愛","f":"｛ENTJ｝は恋愛も含めて「結果」を求める。デートも「次に繋がるか」を意識する。これが「ロマンがない」と捉えられがちだが、本人にとっては誠実さの表現。","l":"ENTJと付き合うなら、目的のあるデートが愛情表現と知る。「無目的な時間」を求めると違和感が生まれる。","s":"NT型と効率性","is_surprise":false},{"c":"MBTI×恋愛","f":"｛ISFP｝は最もアートと自然を愛するタイプ。デートは美術館、自然散策、音楽など、感覚的な体験を共有することで関係が深まる。","l":"ISFPと深まりたいなら、議論より「美しいものを一緒に体験」する。言葉のない時間が絆を作る。","s":"SP型と美的体験","is_surprise":false},{"c":"MBTI×恋愛","f":"｛INFJ｝は人口の1〜2%と最も希少なタイプ。「魂のパートナー」を求める傾向が強く、出会いの基準が高い。妥協を嫌い、長く独身でいることも多い。","l":"理想の高さは美徳でもあり呪いでもある。「完璧でない人」と関係を築く中で、自分の理想自体が成熟する。","s":"INFJの希少性","is_surprise":false},{"c":"MBTI×恋愛","f":"｛ENFP｝は恋愛初期、急速に距離を縮める。出会って数日で「運命の人」と感じることも多い。ただしその情熱は持続が難しく、別の人にも同じ熱量を持つ可能性がある。","l":"ENFPの「運命を感じる」は本気だが、頻発する。一度の情熱より、続いた情熱を信頼する。","s":"NF型の即時的情熱","is_surprise":false},{"c":"MBTI×恋愛","f":"｛ESTJ｝×｛ISFJ｝、｛ISTJ｝×｛ESFJ｝などの伝統的SJペアは、結婚生活が安定する傾向が強い。価値観の共有と役割分担が明確になりやすい。","l":"派手さより安定を求めるなら、SJ型同士が現実的。「ドキドキ」より「ずっと一緒」の選択。","s":"SJ型カップル安定性","is_surprise":true},{"c":"MBTI×恋愛","f":"｛ENTP｝はパートナーを「議論相手」として見る側面がある。知的に刺激を与えてくれない相手とは、すぐに退屈してしまう。","l":"ENTPと付き合うなら、知的好奇心を共有する。「ただ優しい」だけでは関係が持たない。","s":"NT型と知的刺激","is_surprise":false},{"c":"MBTI×恋愛","f":"｛ISTP｝×｛ESFJ｝の組み合わせは、表面では正反対だが、ISTPの落ち着きとESFJの社交性が補完する。ISTPに「外の世界」をESFJが運び、ESFJに「内的な平穏」をISTPが与える。","l":"自分と全く違うタイプを「理解できない」と切り捨てない。違いの中にこそ補完がある。","s":"対極補完説","is_surprise":false},{"c":"出会い","f":"第一印象は0.1秒で決まる。プリンストン大学の研究で、顔写真を100分の1秒見ただけの判断と、長く見た判断が、ほぼ一致した。","l":"第一印象を変えるのは難しい。だから初対面の準備(身だしなみ、姿勢、笑顔)に投資する価値が高い。","s":"Willis & Todorov (2006)","is_surprise":false},{"c":"出会い","f":"人は自分と顔の特徴が似ている人に惹かれやすい。これは無意識の現象で、信頼感の源泉になっている。","l":"自分の写真と相手の写真を並べてみる。「似ている」と感じる相手とは、関係が築きやすい傾向。","s":"類似性の魅力","is_surprise":false},{"c":"出会い","f":"対称的な顔は美しいと感じられる。これは遺伝的健康のシグナルとして進化的に好まれる。ただし完全対称は「不気味の谷」を生むため、わずかな非対称が魅力的。","l":"魅力は完全さではなく「ちょうどいい不完全さ」。完璧を目指す必要はない。","s":"対称性と魅力","is_surprise":false},{"c":"出会い","f":"匂いは魅力の重要な要素。「自分と免疫遺伝子が違う相手」の匂いを好む傾向があり、これは遺伝的多様性を高めるための本能。","l":"「なぜか惹かれる」「なぜか拒否反応」の多くは匂いが原因かもしれない。香水で隠しすぎないことが、相性発見に繋がる。","s":"MHC遺伝子と匂い","is_surprise":false},{"c":"出会い","f":"つり橋効果は実在するが、誤解されている。緊張状態(運動後、ホラー映画後)で出会った相手は、ドキドキを「恋」と誤認しやすい。ただし効果は一時的。","l":"刺激のあるデート(遊園地、ホラー映画)は初期魅力に効くが、関係を深めるには静かな時間も必要。","s":"Dutton & Aron (1974)","is_surprise":false},{"c":"出会い","f":"見つめる時間が長いと、相手は好意を持っていると感じる。アイコンタクト90秒で、見知らぬ男女が恋に落ちる確率が上がるという研究もある。","l":"気になる人がいたら、視線を意識的に向ける。ただしストーカー的に見つめると逆効果なので、適度に。","s":"Kellerman / 視線研究","is_surprise":false},{"c":"出会い","f":"笑顔の人は、笑顔でない人より、知的にも温かくも魅力的に評価される。表情だけで全体の評価が変わる「ハロー効果」が働く。","l":"第一印象を良くする最強の道具は笑顔。1円もかからず、誰でもできる。","s":"表情と印象","is_surprise":false},{"c":"出会い","f":"人は声で性格を判断する。低めの声は信頼感、温かい抑揚は魅力に直結する。電話やビデオ通話では、内容より声の質が印象を決める。","l":"オンラインデートでは、声の質を意識する。低く、ゆっくり、温かく話す練習が効く。","s":"声と魅力","is_surprise":false},{"c":"出会い","f":"人は「自分の名前を覚えてくれた人」を特別に感じる。デートで相手の名前を会話に入れるだけで、好感度が上がる。","l":"出会って2回目に名前を呼ぶと、関係が一気に縮まる。ただし不自然になるほど多用しない。","s":"カクテルパーティ効果","is_surprise":false},{"c":"出会い","f":"共通の話題があると、5分の会話で何時間も話したような親密感が生まれる。趣味、出身地、好きな映画など、何でも繋がりを作れる。","l":"初対面で「共通点を探す」を意図的に行う。3つ見つかれば、関係の土台ができる。","s":"類似性原理","is_surprise":false},{"c":"出会い","f":"自分の弱みを少し見せると、相手は心を開きやすい。完璧な人より、適度に不完全な人の方が、近づきやすく感じる。","l":"自慢ばかりせず、軽い失敗談を入れる。「完璧でない自分」を見せることが、信頼の入口。","s":"プラットフォール効果","is_surprise":true},{"c":"出会い","f":"質問する側の方が、関係を深めやすい。良い質問は「Yes/Noで答えられない、相手の物語を引き出す」もの。","l":"「趣味は?」より「最近ハマっていることは?」。後者は物語を引き出す。質問の質が、関係の深さを決める。","s":"質問の力","is_surprise":false},{"c":"出会い","f":"アロン博士の「36の質問」は、見知らぬ二人が45分で深い親密感を持つことを実証した。質問は徐々に深くなる構造で、お互いの自己開示を促す。","l":"親しくなりたい相手と、表面的な会話を続けるより、意図的に深い質問を交わす方が早い。","s":"Aron / 36 Questions","is_surprise":false},{"c":"出会い","f":"初デートの場所で関係性が変わる。「動的な場(遊園地、散歩)」の方が、「静的な場(カフェ)」より、相手への評価が高くなる。動きが感情を増幅する。","l":"初デートは、座って話すだけより、何かを一緒に体験する場所を選ぶ。記憶に残る関係になる。","s":"デート文脈の影響","is_surprise":false},{"c":"出会い","f":"マッチングアプリの最初のメッセージは、長すぎても短すぎても返信率が下がる。50〜100文字程度、相手のプロフィールを具体的に引用するメッセージが最も返信率が高い。","l":"「こんにちは」は無視される。「プロフィールの○○、私も好きで、最近△△に行きました」のように、具体性が鍵。","s":"アプリメッセージ研究","is_surprise":false},{"c":"出会い","f":"オンラインでの好感度と、実際に会った時の好感度は、必ずしも一致しない。長すぎるテキストのやり取りは、現実の出会いを期待過剰にしてしまう。","l":"アプリで何週間もメッセージするより、1〜2週間以内に会う方が、現実の関係になりやすい。","s":"オンライン-オフラインギャップ","is_surprise":false},{"c":"出会い","f":"人は「自分が好かれている」と感じる相手を、好きになりやすい。「好意の返報性」。だから、興味を示すことが、関係構築の最初のステップ。","l":"気になる人がいたら、「好きアピール」より「あなたに興味があります」を示す。返報性が働く。","s":"好意の返報性","is_surprise":false},{"c":"出会い","f":"複数回会うと、その人への好感度が上がる。「単純接触効果」。最初は印象が薄くても、会う回数を重ねると魅力的に見えてくる。","l":"「一目惚れ」より「気づいたら好きだった」の方が長続きする傾向。すぐに判定せず、時間をかける。","s":"Zajonc / 単純接触","is_surprise":false},{"c":"出会い","f":"初対面では、自分が話す時間と相手に話させる時間は3:7が理想とされる。聞く側に回る方が、相手の印象に残る。","l":"初対面で自分を売り込もうとせず、相手に話させる。話せた人ほど、その場を「楽しかった」と感じる。","s":"会話バランス","is_surprise":false},{"c":"出会い","f":"出会いの環境が関係を決める。「真剣な関係を求める人」が集まる場と「カジュアルな関係を求める人」が集まる場では、出会える相手の質が違う。","l":"何を求めているかで、行く場所を選ぶ。「クラブで真剣な相手を探す」のは戦略的に難しい。","s":"出会いの文脈効果","is_surprise":false},{"c":"関係の深化","f":"恋愛の「ドキドキ」は、脳がドーパミンとノルアドレナリンを大量に出している状態。これは医学的に「ストレス反応」とほぼ同じで、長続きしない。だいたい1〜3年で落ち着く。","l":"「ドキドキしなくなった=愛が消えた」ではない。脳が「危機モード」から「安定モード」に移行しただけ。","s":"Helen Fisher / 恋愛の脳科学","is_surprise":false},{"c":"関係の深化","f":"愛は3つの脳システムから成る: 性欲(テストステロン)、ロマンチック愛(ドーパミン)、愛着(オキシトシン)。これらは独立に活性化することがあり、別の人に同時に向くこともある。","l":"「複雑な気持ち」は脳の構造的に当然。一人の人に全てを向けるのは、ある意味奇跡。","s":"Fisher / 三脳愛理論","is_surprise":false},{"c":"関係の深化","f":"カップルが一緒に新しいことを体験すると、関係の満足度が上がる。「自己拡張理論」。新しい経験を共有することで、相手を「自分の一部」として取り込む感覚が生まれる。","l":"マンネリ化したら、新しい体験を一緒にする。旅行、習い事、初めてのレストラン。新規性が愛を再点火する。","s":"Aron / 自己拡張理論","is_surprise":false},{"c":"関係の深化","f":"カップルの満足度を最も予測するのは「ポジティブ:ネガティブの比率」。5:1以上(肯定的相互作用が否定的の5倍以上)の関係は安定し、それ以下は離婚率が高い。","l":"喧嘩を減らすより、感謝・褒める・スキンシップを増やす。プラスを増やす方が、マイナスを減らすより効く。","s":"Gottman / 5:1の法則","is_surprise":true},{"c":"関係の深化","f":"カップルが葛藤する時、4つの「黙示録の騎士」が現れると関係は危険。批判、軽蔑、防衛、無視。特に「軽蔑」が最も離婚を予測する。","l":"パートナーを「あなたはダメ」と人格否定しない。「この行動が嫌」と具体的に伝える。","s":"Gottman / Four Horsemen","is_surprise":false},{"c":"関係の深化","f":"パートナーの「ささやかな話しかけ」に応じるかが、関係を決める。「ねえ、見てこの鳥」に対して、「うん」と応じる人の関係は87%が継続、「無視」の関係は33%しか継続しない。","l":"パートナーの何気ない言葉に、面倒くさがらず応じる。小さな反応の積み重ねが関係を作る。","s":"Gottman / Bids for connection","is_surprise":false},{"c":"関係の深化","f":"良い関係は「葛藤がない」のではなく、「葛藤を修復する技術がある」。喧嘩しないカップルは、本音を言えていない可能性がある。","l":"喧嘩を恐れない。むしろ「健全に喧嘩できるか」を関係の指標にする。","s":"修復スキル","is_surprise":false},{"c":"関係の深化","f":"スキンシップ(手を繋ぐ、ハグ)は、オキシトシンを分泌させ、絆を強める。20秒以上のハグで、効果が顕著に出る。","l":"短いハグでなく、長めのハグ。1日1回でも、関係の安定に効く。","s":"オキシトシン研究","is_surprise":false},{"c":"関係の深化","f":"カップルが同じ話を何度もするのは退屈ではなく、関係を強める儀式。「二人の歴史」を共有する行為。","l":"パートナーの「同じ話」に「もう聞いた」と言わず、毎回新鮮に聞く。それが愛の形。","s":"カップル儀式","is_surprise":false},{"c":"関係の深化","f":"5つの愛の言語(言葉、時間、贈り物、行為、触れ合い)があり、人によって優先順位が違う。自分の言語で愛しても、相手には届かないことがある。","l":"自分の愛の言語と、相手の言語を知る。「自分なら嬉しい」を相手にしても、ずれている可能性がある。","s":"Chapman / 5 Love Languages","is_surprise":false},{"c":"関係の深化","f":"パートナーへの感謝を口に出すと、関係の満足度が上がる。「ありがとう」を1日1回意識的に言うだけで、3週間後の関係評価が改善する。","l":"感謝は「思う」だけでなく「言う」。当たり前のことにこそ感謝を言葉にする。","s":"Algoe / 感謝研究","is_surprise":false},{"c":"関係の深化","f":"喧嘩中の脳は、認知能力が一時的に下がる。「フラッディング」と呼ばれる状態で、論理的な議論はほぼ不可能。20分の休憩が解決を加速する。","l":"喧嘩がエスカレートしたら、一旦中断する。「逃げた」のではなく、「冷静になる」ための戦略。","s":"Gottman / Flooding","is_surprise":false},{"c":"関係の深化","f":"理想化は関係を助ける。パートナーを少し過大評価しているカップルは、現実通り評価しているカップルより、長期的に幸せ。","l":"パートナーの良いところを見る習慣を持つ。「悪いところもあるけど」と中和せず、純粋に良さを認識する。","s":"Murray et al. / 理想化効果","is_surprise":false},{"c":"関係の深化","f":"カップルが互いに「ベスト」を引き出す関係を「マイケランジェロ効果」と呼ぶ。相手の理想の自分を信じ、引き出す関係は、両者を成長させる。","l":"愛する相手を「ありのまま受け入れる」だけでなく、「なりたい自分」を引き出す関係を目指す。","s":"Rusbult / Michelangelo Phenomenon","is_surprise":false},{"c":"関係の深化","f":"性的満足度と関係満足度は強く相関する。ただし「セックスの回数」より「親密度の感覚」が決定的。週1回でも親密なカップルの方が、頻度が高いが冷めたカップルより満足度が高い。","l":"頻度を競うのでなく、質を作る。会話、目を合わせる、触れる、笑う。これらが土台。","s":"性と関係性","is_surprise":false},{"c":"関係の深化","f":"カップルが「我々」という言葉を使う頻度が、関係の安定を予測する。「私」と「あなた」より「私たち」を多用するカップルは、長続きする。","l":"パートナーシップを言葉で強化する。「私たちの問題」「私たちの目標」と話す習慣。","s":"代名詞研究","is_surprise":false},{"c":"関係の深化","f":"カップルが定期的に「振り返り」をする関係は強い。月1回でも「最近どう?」と話す時間を持つことで、小さな不満が爆発する前に解消される。","l":"問題が起きてから話すのでなく、定期的なメンテナンスを習慣化する。","s":"関係のメンテナンス","is_surprise":true},{"c":"関係の深化","f":"パートナーへの「期待」を明確に伝える方が、伝えないより関係が安定する。「察してほしい」は通じない場合が多く、不満の温床になる。","l":"「言わなくても分かるはず」を捨てる。期待は言葉にする。それが大人の関係。","s":"期待管理","is_surprise":false},{"c":"関係の深化","f":"カップルが個別の時間を持つ関係は、常に一緒にいる関係より満足度が高い。一人の時間が、相手への愛を再生する。","l":"四六時中一緒にいることが愛ではない。距離が、愛を新鮮に保つ。","s":"健全な距離","is_surprise":false},{"c":"関係の深化","f":"パートナーの友人や家族を否定すると、関係が壊れやすい。たとえパートナー自身が文句を言っていても、外部から否定するのは別。","l":"パートナーの「身内」を尊重する。「あなたの友達はダメだね」は禁句。","s":"関係の境界","is_surprise":false},{"c":"関係の深化","f":"カップルの「価値観」が一致するより、「価値観の違いを話せる関係」の方が安定する。違うことが問題ではなく、違いを扱えるかが問題。","l":"完全に同じ価値観の相手を探すのは無理。違いを扱うスキルを育てる方が現実的。","s":"差異の扱い","is_surprise":false},{"c":"関係の深化","f":"カップルが「ありがとう」「ごめんなさい」を言える関係は、安定する。プライドを下げる行為が、関係を上げる。","l":"非を認めることは弱さでなく強さ。すぐに「ごめん」と言える人が、関係を続けられる。","s":"謝罪の力","is_surprise":false},{"c":"関係の深化","f":"良いセックスの後は、絆ホルモンのオキシトシンが分泌され、感情的繋がりが強まる。ただし、これに過剰に依存すると、肉体関係なしには絆が築けなくなる。","l":"肉体的な繋がりと感情的な繋がりは別。両方を意識的に育てる。","s":"オキシトシンと絆","is_surprise":false},{"c":"関係の深化","f":"カップルの長期幸福を予測する最強の指標は「お互いを尊敬しているか」。愛より、信頼より、尊敬が決定的。","l":"自分のパートナーを尊敬できるか。できないなら、関係を見直す時。","s":"Gottman / 尊敬の重要性","is_surprise":false},{"c":"関係の深化","f":"関係のセラピーを受けるカップルは、深刻な状態になってからではなく、軽い問題のうちに受けた方が、改善率が遥かに高い。多くは「もう手遅れ」段階で来る。","l":"セラピーは「壊れた関係を直す」ものでなく「関係を強化する」もの。早めの介入が効く。","s":"カップル心理療法研究","is_surprise":false},{"c":"葛藤","f":"喧嘩中、男性は女性より早く生理的に「フラッディング」する傾向がある。心拍数100超で、論理的会話が不可能になる。だから「黙る」「逃げる」のは戦略でなく生理。","l":"パートナーが沈黙したら、攻めるのを止める。20分の休憩を提案する方が、解決に近い。","s":"性差と生理反応","is_surprise":false},{"c":"葛藤","f":"「批判」と「不満」は違う。批判は人格を攻める(「あなたはいつも自分勝手」)、不満は行動を指摘する(「昨日の予定変更が辛かった」)。批判が関係を壊す。","l":"主語を「あなた」から「私」に変える。「あなたが悪い」より「私はこう感じた」。","s":"I-message","is_surprise":false},{"c":"葛藤","f":"喧嘩の70%は解決不能な問題。性格の違い、価値観の違い。だから「解決しよう」とせず、「共存しよう」と発想を変える方が現実的。","l":"全ての問題を解決しようとしない。「これは続く問題」と受け入れることで、関係が楽になる。","s":"Gottman / Perpetual problems","is_surprise":false},{"c":"葛藤","f":"良いカップルの喧嘩には「修復の試み」がある。冗談、譲歩、ハグ、ユーモア。これらの小さな試みを相手が受け入れるかで、関係の未来が決まる。","l":"喧嘩中の「ねえ、ごめん」「ハグしよう」を見逃さない。受け取ることが、関係を救う。","s":"Repair attempts","is_surprise":false},{"c":"葛藤","f":"離婚した夫婦の多くは、「相性が悪かった」と振り返るが、研究では「葛藤の処理の仕方」が問題だったケースが大半。同じ問題でも、扱い方で結果が変わる。","l":"「相性」を理由に諦める前に、自分の葛藤処理スキルを見直す。スキルは学べる。","s":"離婚研究","is_surprise":true},{"c":"葛藤","f":"「冷戦」(無視、沈黙)は喧嘩より関係にダメージを与える。Stonewalling(壁を作る)はGottmanが指摘する4騎士の一つ。","l":"怒っても話す。「話さない」より「下手でも話す」方が、関係に良い。","s":"Stonewalling","is_surprise":false},{"c":"葛藤","f":"嫉妬は「不安の信号」。相手を信じていないのではなく、自分を信じていない場合が多い。「相手が魅力的すぎて、自分が見合わない」という自己評価の低さ。","l":"嫉妬を感じたら、相手を疑う前に、自分の自己評価を見直す。自分の問題かもしれない。","s":"嫉妬の心理","is_surprise":false},{"c":"葛藤","f":"パートナーの過去の恋愛を詳しく聞くと、関係が悪化することが多い。「知らない方が幸せ」な情報は確かに存在する。","l":"全てを共有する必要はない。「過去」は、関係を強くする情報でなければ、深掘りしない。","s":"自己開示の限界","is_surprise":false},{"c":"葛藤","f":"浮気の70%は「関係への不満」より「自分を再認識したい」欲求から起こる。「相手が悪いから」より「自分の問題」のケースが多い。","l":"浮気は関係の問題でなく、個人の問題のことが多い。「自分のせい」と過剰に自責しないことも大事。","s":"浮気研究","is_surprise":false},{"c":"葛藤","f":"浮気からの関係修復は可能だが、平均2年かかる。「許す」と決めるまでは数ヶ月、信頼が戻るまでは数年。短期決断は危険。","l":"浮気が発覚したら、すぐに別れも続行も決めない。時間をかけて、自分の本心を見極める。","s":"浮気後の修復","is_surprise":false},{"c":"葛藤","f":"別れの痛みは、身体的な痛みと脳で同じ領域が活性化する。「失恋は本当に痛い」のは医学的に正しい。","l":"失恋を「気の持ちよう」で乗り越えようとしない。物理的なケア(運動、食事、睡眠)が必要。","s":"Eisenberger / 社会的痛み","is_surprise":false},{"c":"葛藤","f":"別れた後の回復には、平均3ヶ月〜半年。脳の依存状態が抜けるのに、それだけかかる。「早く忘れたい」は逆効果。","l":"失恋の悲しみを急がない。十分に悲しむことが、回復への最短経路。","s":"失恋の脳科学","is_surprise":false},{"c":"葛藤","f":"別れた相手と「友達でいよう」は、多くの場合うまくいかない。脳の中で「特別な人」のカテゴリから外せず、関係が宙吊りになる。","l":"別れたら、完全に距離を取る期間が必要。「友達」を急がない。","s":"別れと関係性","is_surprise":false},{"c":"葛藤","f":"別れの理由として「愛が冷めた」と言う人は多いが、実際には「葛藤を解決できなかった」「期待のずれが大きくなった」など、技術的な問題のことが多い。","l":"「愛が冷めた」を最終結論にする前に、何が起きたかを具体的に分析する。同じ過ちを繰り返さない。","s":"別れの理由分析","is_surprise":false},{"c":"葛藤","f":"「サンクコスト」が別れを難しくする。「3年付き合ったから」「家族に紹介したから」と、過去の投資を理由に続けてしまう。本来は「これからどうか」で判断すべき。","l":"関係を判断するのは「これまで何があったか」でなく「これから何があるか」。過去は判断材料にしない。","s":"サンクコストと恋愛","is_surprise":false},{"c":"葛藤","f":"別れを切り出す側より、切り出される側の方が、回復が早い研究結果がある。「自分の意志でない別れ」は明確な「終わり」になるから。","l":"曖昧な別れより、明確な別れの方が回復しやすい。「保留」は両者を苦しめる。","s":"別れの非対称性","is_surprise":false},{"c":"葛藤","f":"別れた直後の判断は信用しない。脳が依存状態にある間、合理的判断は難しい。「やっぱり戻ろう」「絶対戻らない」、どちらも数ヶ月後に変わる可能性がある。","l":"別れて1ヶ月以内に大きな決断をしない。冷静になってから、本当の気持ちを確認する。","s":"別れと判断力","is_surprise":false},{"c":"葛藤","f":"連絡を絶つ「No Contact ルール」は、別れからの回復に有効。最低30日、できれば60日。脳の依存パターンを断ち切る期間。","l":"未練がある時こそ、連絡しない。連絡するたびに、回復がリセットされる。","s":"No Contact Rule","is_surprise":true},{"c":"葛藤","f":"別れの悲しみを乗り越える最も効果的な方法は、新しい習慣・人間関係・経験を作ること。「忘れる」より「上書きする」。","l":"失恋からの回復は、忘れようとするのでなく、新しい何かに集中する。エネルギーを別に向ける。","s":"代替活動","is_surprise":false},{"c":"葛藤","f":"別れた相手に「最後にもう一度会う」のは、多くの場合、回復を遅らせる。「終わりの終わり」を作ろうとするが、新しい記憶が依存を再点火させる。","l":"「最後のお別れ」を求めたくなる気持ちは、未練の表れ。会わない方が、本当の終わりに近づく。","s":"再会と未練","is_surprise":false},{"c":"現代の恋愛","f":"マッチングアプリの普及で、出会いの数は増えたが、関係の質は下がっている研究結果がある。「次がいる」という意識が、目の前の相手への投資を減らす。","l":"アプリで出会った相手とは、「他にもいる」マインドを意図的に手放す。一人に集中する選択。","s":"アプリと関係性研究","is_surprise":false},{"c":"現代の恋愛","f":"Z世代の若者は、過去世代より恋愛経験が少ない傾向。SNSでの「完璧な恋愛」イメージが、現実の不完全な関係をスタートさせにくくしている。","l":"SNSの恋愛投稿は「ハイライト」。自分の関係と比較しない。比較した瞬間に、現実の関係が不十分に見える。","s":"SNSと恋愛","is_surprise":false},{"c":"現代の恋愛","f":"「ゴースティング」(突然連絡を絶つ別れ方)は、現代特有の現象。明確な別れより心理的ダメージが大きいとされる。","l":"自分がされたらつらいゴースティングを、自分がしない。「終わり」を明確に伝えることが、相手への最後の誠実さ。","s":"Ghostingの心理","is_surprise":false},{"c":"現代の恋愛","f":"Z世代では「友達以上恋人未満」の関係が長期化する傾向。「ラベルをつけない関係」が増え、定義が曖昧なまま続く。","l":"関係に名前をつけることを恐れない。「私たちは何?」と聞くことが、関係を進める。","s":"Situationship","is_surprise":false},{"c":"現代の恋愛","f":"既読スルーは、不安型愛着の人に最も強いダメージを与える。脳が「拒絶」と認識し、痛みの回路が活性化する。","l":"既読がついて返信がない時、「忙しいだけ」と意識的にラベリングする。最悪を想定しない練習。","s":"既読の心理","is_surprise":false},{"c":"現代の恋愛","f":"SNSでパートナーの過去や友人を見ることは、関係を悪化させる傾向。「知らなくてよかった情報」が増え、不安や嫉妬を生む。","l":"SNSでパートナーを「監視」しない。情報が多いほど、不安が増える構造。","s":"SNS監視","is_surprise":false},{"c":"現代の恋愛","f":"オンラインデートで、最初のメッセージから実際に会うまでが「2週間以上」かかると、関係発展率が下がる。理想化が進みすぎて、現実とのギャップが大きくなる。","l":"アプリで気になる人ができたら、1〜2週間以内に会う約束をする。長引かせると、関係は始まらない。","s":"アプリの最適期間","is_surprise":false},{"c":"現代の恋愛","f":"Z世代では「恋愛しないこと」を選択する人が増えている。経済的・時間的負担と、得られるメリットの計算で、選択しているケースが多い。","l":"恋愛は「するもの」でなく「選ぶもの」。自分の人生で本当に必要かを問う視点を持つ。","s":"恋愛離れ","is_surprise":false},{"c":"現代の恋愛","f":"「マッチングアプリ疲れ」は実在する。選択肢が多すぎて、誰も選べなくなる「選択のパラドクス」の典型。","l":"アプリは「使う期間」を区切る。常時稼働させると、疲弊して質も下がる。","s":"アプリ疲労","is_surprise":false},{"c":"現代の恋愛","f":"オンラインでの自己紹介で「外見」より「人柄が伝わる写真」「具体的な趣味」が、長期関係に繋がる出会いを生む。","l":"プロフィールは「モテるため」でなく「合う人と出会うため」に書く。万人受けより、特定の人に刺さる内容。","s":"プロフィール戦略","is_surprise":false},{"c":"現代の恋愛","f":"動画通話は、テキストやり取りより関係発展を加速する。声と表情の情報が、文字より遥かに多い。","l":"アプリでメッセージが続いたら、早めにビデオ通話か対面に移行する。文字だけのやり取りは、関係を停滞させる。","s":"マルチモーダルコミュニケーション","is_surprise":true},{"c":"現代の恋愛","f":"「インスタストーリーで返信する」「特定の絵文字を送る」など、SNS特有の親密表現がある。世代によってコードが違うため、誤解も生まれやすい。","l":"SNS上の行動を「過剰に意味付け」しない。文化的なコードに過ぎず、深い意味がない場合も多い。","s":"デジタル親密性","is_surprise":false},{"c":"現代の恋愛","f":"恋愛初期に「LINE頻度」を高くしすぎると、関係が早く飽和する。脳が「常時繋がっている」状態に慣れ、新鮮さが消える。","l":"連絡頻度は意識的に調整する。「物足りない」くらいが、長期的には健全。","s":"連絡頻度の最適化","is_surprise":false},{"c":"現代の恋愛","f":"「マイクロチート」(浮気未満のグレーな行動)は現代特有の課題。SNSでのいいね、DM、共通の友達との関係など、線引きが難しい。","l":"パートナーと「OK/NGライン」を事前に話し合う。「常識」は人それぞれ違う。","s":"Micro-cheating","is_surprise":false},{"c":"現代の恋愛","f":"オンラインデートでの「コーチング」業界が拡大している。プロフィール写真、メッセージの書き方、デートプランまで指導するサービス。それだけ恋愛が「技術」化している。","l":"恋愛もスキル。自然にできる人より、学んだ人の方が、質の高い関係を築ける可能性がある。","s":"恋愛市場の専門化","is_surprise":false},{"c":"現代の恋愛","f":"Z世代では「経済的に対等」な関係を望む傾向が強い。割り勘文化、共働き志向、伝統的なジェンダー役割への抵抗。","l":"古い恋愛観を相手に強いない。お互いの価値観を確認し、共通の関係スタイルを作る。","s":"ジェンダーと恋愛","is_surprise":false},{"c":"現代の恋愛","f":"「ポリアモリー」「オープン関係」など、伝統的な一夫一妻以外の関係性が、若い世代で増加している。ただし運営は通常の関係より難しく、深い対話が要る。","l":"自分にとっての関係スタイルを考える。「みんなと同じ」が正解とは限らないが、選択にはコストがある。","s":"関係多様化","is_surprise":false},{"c":"現代の恋愛","f":"オンラインでの誹謗中傷や、別れた相手のリベンジポルノは、若い世代の恋愛リスクとして増加している。デジタル時代の新しい暴力形態。","l":"親密な写真や情報の共有は、慎重に。「絶対大丈夫」と思える関係でも、リスクは残る。","s":"デジタル恋愛リスク","is_surprise":false},{"c":"現代の恋愛","f":"アプリで「会いに行く」前のビデオ通話は、安全確認になるだけでなく、相性の判断にも有用。声と動きで、テキストでは見えない部分が分かる。","l":"アプリで「いい感じ」になっても、会う前にビデオ通話を提案する。それを断る相手には、注意。","s":"アプリ安全策","is_surprise":false},{"c":"現代の恋愛","f":"Z世代の若者は、過去世代より「恋愛より自己実現」を重視する傾向。仕事、趣味、自分の成長を優先し、恋愛を後回しにする選択。","l":"恋愛を「人生の必須」と思わない。自分の人生のどこに位置付けるか、自分で決める。","s":"優先順位の変化","is_surprise":false},{"c":"現代の恋愛","f":"オンラインで知り合って結婚するカップルが増加し、現在は新婚カップルの30%以上がオンライン出会い。離婚率は対面出会いより低いという研究も。","l":"「アプリで出会った」を恥じない。むしろ、選択肢の中から意識的に選んだ関係の方が、安定する可能性がある。","s":"オンライン結婚","is_surprise":false},{"c":"現代の恋愛","f":"「恋愛感情を信じない」若者が増えている。「ドキドキ」を関係の判断材料にせず、「価値観の一致」「長期的な相性」で選ぶ傾向。","l":"感情だけでなく、論理でも相手を判断する。両方の視点が、賢明な選択を生む。","s":"合理的恋愛","is_surprise":false},{"c":"現代の恋愛","f":"「Slow dating」(ゆっくり関係を進める)を選ぶ若者が増えている。短期間で「告白→交際→破局」を繰り返すより、時間をかけて確認する。","l":"急がない関係を選ぶ。「すぐ付き合う」より「ゆっくり知る」方が、長期的に良い結果を生む。","s":"スローデーティング","is_surprise":false},{"c":"現代の恋愛","f":"「セラピー文化」が若い世代に広がっている。カウンセリングを受けることに抵抗が少なく、自己理解を深める文化。","l":"セラピーは「弱い人が受けるもの」ではない。自己理解への投資として、検討の価値がある。","s":"セラピー文化","is_surprise":true},{"c":"現代の恋愛","f":"アプリでのデート前、相手の名前で検索して情報を集めるのが普通になっている。「デート前リサーチ」は安全策でもあり、関係を歪める要因でもある。","l":"事前情報は最小限に。会う前に知りすぎると、先入観で関係を判断してしまう。","s":"検索とデート","is_surprise":false},{"c":"自己理解","f":"恋愛で「いつも同じパターンに陥る」のは、自分の中に未解決の問題があるサイン。相手を選んでいるようで、無意識のパターンが選ばせている。","l":"3回続けて同じような関係に終わったら、相手の問題でなく自分の問題を疑う。パターンを言語化することが第一歩。","s":"反復強迫","is_surprise":false},{"c":"自己理解","f":"「自分を愛していないと、他人も愛せない」は半分正しい。自己肯定感が極端に低い人は、健全な愛し方ができない。","l":"恋愛で苦しむなら、まず自分との関係を見直す。「自分を満たす」が、関係の土台。","s":"自己肯定感と恋愛","is_surprise":false},{"c":"自己理解","f":"恋愛中、相手の良いところに過剰に注目し、欠点を見ないのは「初期の幻想」。これは脳の自然な作用だが、長期関係では「現実の相手」を見る視点が必要。","l":"理想化が消えた時が、本当の関係の始まり。「冷めた」と決めつけず、深まる機会と捉える。","s":"理想化の脱却","is_surprise":false},{"c":"自己理解","f":"パートナーへの不満は、しばしば自分の中の「言えていない欲求」の表れ。相手が悪いのでなく、自分が伝えていない可能性がある。","l":"不満を感じたら「自分は何が欲しいのか」を先に問う。それを言葉にできれば、相手も応えやすい。","s":"投影","is_surprise":false},{"c":"自己理解","f":"親との関係パターンが、恋愛で繰り返される。「父のような人」「母とは違う人」を無意識に選ぶ。これは病的でなく、人間の普通の構造。","l":"自分の親との関係を客観視する。それが、自分の恋愛パターンを理解する鍵。","s":"内的作業モデル","is_surprise":false},{"c":"自己理解","f":"「束縛したい」気持ちは、相手を信頼していないより、自分を信頼していないことが多い。「相手に去られたら、自分は価値がない」と感じている。","l":"束縛したくなる時、自分の不安の源を探る。相手の問題ではなく、自分の課題かもしれない。","s":"自己評価と束縛","is_surprise":false},{"c":"自己理解","f":"健全な依存と不健全な依存は違う。健全は「相手を頼れる」、不健全は「相手なしで自分が機能しない」。区別が重要。","l":"パートナーを「人生の全て」にしない。自分の趣味、友人、目標を別に持つ。これが健全な依存。","s":"健全な相互依存","is_surprise":false},{"c":"自己理解","f":"恋愛初期の感覚を「永遠に続く」と思い込むのは、脳の錯覚。これを理解していると、ドキドキが消えた時に「終わった」と誤解しない。","l":"関係には段階がある。初期、安定期、深化期、それぞれ違う感覚。比較せず、今の段階を生きる。","s":"関係の段階理論","is_surprise":false},{"c":"自己理解","f":"自分の「許容範囲」と「絶対NG」を明確に持っている人は、関係を健全に保ちやすい。曖昧だと、後悔する選択をしやすい。","l":"恋愛を始める前に、自分の境界線を言葉にしておく。「これは譲れない」を3つ書き出す。","s":"バウンダリー","is_surprise":false},{"c":"自己理解","f":"恋愛が「人生の全て」になっている時、それは関係の問題でなく、自分の人生の問題かもしれない。健全な関係は、人生の一部であって、全てではない。","l":"恋愛以外の自分を育てる。仕事、趣味、友情、自己成長。バランスが、恋愛を強くする。","s":"人生のポートフォリオ","is_surprise":false},{"c":"自己理解","f":"パートナーを「変えよう」とすると関係が壊れる。変えられるのは自分だけ。自分が変わると、関係の力学が変わり、結果的に相手も変わることがある。","l":"相手を変えようとする努力を、自分を見つめる努力に変える。それが、関係を変える唯一の道。","s":"システム思考","is_surprise":false},{"c":"自己理解","f":"「自分はこういうタイプの人を好きになる」というパターンは、無意識の自己治癒の試み。「親と似た人で違う結末を作りたい」という、心の深層動機。","l":"自分の「タイプ」を疑う。タイプから外れた人に、本当の幸せがある可能性がある。","s":"反復強迫の意味","is_surprise":true},{"c":"自己理解","f":"健全な関係を築ける人ほど、「一人でも幸せ」という土台がある。寂しさから始まる関係は、依存的になりやすい。","l":"パートナーが必要な状態より、いれば嬉しい状態を作る。一人で満たされていることが、最強の前提。","s":"健全な独立","is_surprise":false},{"c":"自己理解","f":"恋愛における「直感」は、過去の経験から作られたパターン認識。だから「直感的にダメ」が、実は親に似ている健全な人だったりする。","l":"直感を全面信頼しない。理由のない違和感は、過去のトラウマの反応かもしれない。","s":"直感と過去","is_surprise":false},{"c":"自己理解","f":"関係の中で「自分を失う」感覚があったら、それは赤信号。健全な関係は、自分を強化するもので、消すものではない。","l":"パートナーといる時、より自分らしくいられるか。違うなら、関係の構造を見直す時。","s":"関係と自己","is_surprise":false},{"c":"恋愛科学","f":"カップルの長期幸福を予測する最強の要素は「友情の質」。恋愛感情より、お互いを「親友」と感じているかが重要。","l":"パートナーを「恋人」だけでなく「親友」として育てる。これが長期関係の秘密。","s":"Gottman / 友情の重要性","is_surprise":false},{"c":"恋愛科学","f":"出会ってから3〜6ヶ月で、脳の恋愛回路は落ち着く。「冷めた」と感じる時期だが、実は健全な変化。","l":"3ヶ月、半年、1年の節目を意識する。「今は移行期」と理解できれば、関係を諦めない。","s":"恋愛の段階","is_surprise":false},{"c":"恋愛科学","f":"長期関係を維持するカップルは、「一緒に新しいことを試す」頻度が高い。脳のドーパミン分泌を、新規体験で再点火する。","l":"マンネリを感じたら、新しい体験を提案する。レストラン、旅行、習い事。脳に新鮮さを与える。","s":"自己拡張理論","is_surprise":false},{"c":"恋愛科学","f":"カップルがお互いの目を90秒以上見つめると、絆ホルモンのオキシトシンが分泌され、繋がりが深まる。これは初対面でも長年のパートナーでも効く。","l":"パートナーとアイコンタクトを意識的に取る。スマホ越しの会話より、目を見る時間の方が貴重。","s":"アイコンタクト効果","is_surprise":false},{"c":"恋愛科学","f":"性的相性と感情的相性は別の脳回路で処理される。一方が完璧でも、もう一方が問題なら関係は続かない。","l":"一面だけで関係を判断しない。両面が育つよう、意識的に投資する。","s":"性と愛の分離","is_surprise":false},{"c":"恋愛科学","f":"カップルが共通の目標(家を買う、子供を育てる、起業する)を持つと、関係の満足度が上がる。「一緒に何かを作る」が、絆を強める。","l":"パートナーと「共同プロジェクト」を持つ。お互いを「同じチームのメンバー」として感じる。","s":"共通目標効果","is_surprise":false},{"c":"恋愛科学","f":"性的に活発なカップルは、そうでないカップルより、関係満足度が高い傾向。ただし「回数」より「親密度」が決定的。","l":"性的な親密性を、関係の重要な要素として育てる。話し合うことが、改善の第一歩。","s":"親密性の研究","is_surprise":false},{"c":"恋愛科学","f":"カップルが定期的にデートする関係は、結婚後も新鮮さを保ちやすい。「結婚したら終わり」でなく、「結婚してからもデート」を続ける。","l":"パートナーと定期的に「特別な時間」を作る。日常の中で、関係を新鮮に保つ仕掛け。","s":"デート文化","is_surprise":false},{"c":"恋愛科学","f":"カップルの幸せは、「お金がいくらか」より「お金の使い方が一致するか」で決まる。価値観の違いが、最も葛藤を生む。","l":"恋愛初期に、お金の使い方を話し合う。「価値観のずれ」を、深刻になる前に確認する。","s":"金銭価値観","is_surprise":false},{"c":"恋愛科学","f":"カップルが寝室を分けると、関係が悪化すると思われがちだが、実は満足度が上がることもある。睡眠の質が、感情の質を決める。","l":"「常に一緒」が愛ではない。睡眠など、別の方が良いことは別にする発想。","s":"スリープダイバース","is_surprise":true},{"c":"恋愛科学","f":"パートナーの「幸せ」を願う気持ちが強いほど、関係の質が高い。「自分のため」より「相手のため」を考える姿勢が、皮肉にも自分の幸せを増やす。","l":"パートナーの夢を真剣に応援する。それが、自分の人生も豊かにする。","s":"愛他性と幸福","is_surprise":false},{"c":"恋愛科学","f":"カップルが「お互いを驚かす」習慣がある関係は、長期的に新鮮さを保つ。小さなサプライズ(花、メッセージ、計画)が効く。","l":"パートナーを驚かすことを習慣化する。月1回でも、関係に新鮮さを供給する。","s":"サプライズ効果","is_surprise":false},{"c":"恋愛科学","f":"高齢のカップルの幸せ研究では、「日常の小さな儀式」が満足度と相関する。朝のコーヒー、夜の散歩、寝る前の挨拶など。","l":"派手なイベントより、日常の儀式を大事にする。それが、関係の土台を作る。","s":"カップル儀式","is_surprise":false},{"c":"恋愛科学","f":"パートナーが困っている時、「解決策」より「共感」を先に示すと、関係の信頼が深まる。多くの男性は解決策に走り、関係を冷やしてしまう。","l":"相手の話を聞く時、まず「それは辛いね」と感情を受け止める。アドバイスはその後。","s":"共感の優先順位","is_surprise":false},{"c":"恋愛科学","f":"カップルが「ありがとう」と頻繁に言う関係は、長期的に安定する。当たり前のことに感謝するかが、関係の質を決める。","l":"「やってもらえて当然」を捨てる。小さなことにも感謝を言葉にする。","s":"感謝の習慣","is_surprise":false},{"c":"恋愛科学","f":"恋愛中、人は「相手の理想像」と「現実の相手」のギャップに苦しむ。理想を100%求めると、誰も合格しない。","l":"相手に求める条件を「絶対」「あれば嬉しい」「気にしない」の3層に整理する。譲歩できる部分を増やす。","s":"理想と現実","is_surprise":false},{"c":"恋愛科学","f":"カップルが「お互いの友人と関係を持つ」と、絆が強まる。パートナーの世界に入ることが、関係を立体的にする。","l":"パートナーの友人を、自分の友人にする努力をする。それが、関係を深める。","s":"社会的織り込み","is_surprise":false},{"c":"恋愛科学","f":"カップルが「お互いに学び合う」関係は、長期的に持続する。一方が成長し、もう一方が止まると、距離が生まれる。","l":"パートナーと一緒に成長する。同じ本を読む、同じことを学ぶ。共通の成長が、絆を強める。","s":"共同成長","is_surprise":false},{"c":"恋愛科学","f":"関係の幸せは、相手の問題ではなく、「自分が幸せに貢献する技術」を持っているかで決まる。技術は学べる。","l":"恋愛は「相性の運」ではなく「技術と意識」。学べる側の自分を、磨き続ける。","s":"関係のスキル","is_surprise":false},{"c":"恋愛科学","f":"パートナーシップは、人類が発明した最も難しい関係形態の一つ。完璧にこなせる人はいない。だから「うまくいかない」のも当然。","l":"自分を責めすぎない。関係は元々難しいもの。少しずつ良くなれば、それで十分。","s":"関係の本質","is_surprise":false},{"c":"Z世代恋愛","f":"「片思いの相手のSNSをチェックする時間」が増えるほど、現実で告白する勇気が下がる傾向。SNSが「会わずに知った気になる」錯覚を生む。","l":"気になる人のSNSを見るより、直接話す方が、関係が進む。情報収集は逆効果になる。","s":"SNSパラドクス","is_surprise":false},{"c":"Z世代恋愛","f":"「告白」は日本独特の文化。海外では「自然に付き合っているか」が明確で、明示的な告白は少ない。グローバル時代、関係の進め方も多様化している。","l":"「告白して付き合う」だけが正解ではない。自然に深まる関係も、明確な合意がある関係も、どちらも有効。","s":"恋愛文化比較","is_surprise":false},{"c":"Z世代恋愛","f":"オンラインで知り合った相手と、実際に会った時の「ギャップ」がストレスになることがある。テキストで構築した相手像と、現実の相手が違う。","l":"アプリやSNSで深まる前に、早めに会う。ギャップを「予期される」状態にしておく。","s":"オンライン-オフライン期待値","is_surprise":true},{"c":"Z世代恋愛","f":"「フォロワー数の多い相手は浮気しやすい」傾向が、若い世代で確認されている。注目を浴びる構造が、選択肢を増やし続ける。","l":"パートナーのSNS環境を考慮する。注目を浴び続ける構造の中にいる人と、安定した関係を築くには別の努力が要る。","s":"インフルエンサー恋愛研究","is_surprise":false},{"c":"Z世代恋愛","f":"「彼氏/彼女と過ごす時間 vs 一人の時間」のバランスは、Z世代では「一人の時間も大事」が主流。常に一緒は、若い世代では「重い」と感じられる。","l":"パートナーシップは「個人の時間を尊重する」前提で築く。「いつも一緒」を求めると、関係が窮屈になる。","s":"独立志向","is_surprise":false},{"c":"Z世代恋愛","f":"高校生・大学生の恋愛は、卒業や就職で物理的に離れるリスクが高い。長期視点で「変化に強い関係」を作るスキルが求められる。","l":"環境変化(進学、就職、引越し)を見越して、関係の在り方を話し合う。「変わらない」ではなく「変化に対応する」関係を目指す。","s":"若年層関係の現実","is_surprise":false},{"c":"Z世代恋愛","f":"「インスタで彼氏/彼女を載せるか問題」は、若い世代特有の葛藤。プライベートを公開するか、隠すかで、価値観のずれが生まれる。","l":"SNSへの掲載は、価値観の問題。事前に話し合う。「載せたい派」と「載せたくない派」のずれは大きい。","s":"SNS公開度","is_surprise":false},{"c":"Z世代恋愛","f":"「Snapchat的な瞬間性」と「Instagram的な永続性」、両方の関係構築スタイルがある。どちらが自分に合うかは、性格による。","l":"自分が「記録派」か「瞬間派」かを知る。それに合うコミュニケーション習慣を作る。","s":"デジタル親密性","is_surprise":false},{"c":"Z世代恋愛","f":"「LINEの返信時間」を気にする若者は多いが、それで関係を判断するのは合理的でない。相手の性格、忙しさ、習慣により、返信時間は大きく変わる。","l":"返信時間を「愛のメーター」にしない。実際に会った時の質を、判断材料にする。","s":"既読既未読の罠","is_surprise":false},{"c":"Z世代恋愛","f":"「マッチングアプリで真剣な相手は見つかるか」は、よく議論される問題。データは「アプリ経由の結婚率が増加中」を示し、もはや「真剣な相手も見つかる場所」になっている。","l":"アプリの「カジュアル印象」を疑う。真剣な人も、アプリを使う時代。","s":"アプリ結婚率","is_surprise":false},{"c":"Z世代恋愛","f":"「年の差恋愛」は、Z世代では「あり」と考える割合が増えている。価値観の一致が、年齢より重視される傾向。","l":"年齢にとらわれない。価値観、コミュニケーション、目標の一致を優先する。","s":"年齢観の変化","is_surprise":false},{"c":"Z世代恋愛","f":"「同性愛・両性愛・全性愛」など、性的指向の多様性が若い世代で広く受け入れられている。自分の性的指向を探る若者も増えている。","l":"自分の性的指向に「決まった枠」を当てはめない。柔軟に、自分が誰を愛するかを観察する。","s":"性的多様性","is_surprise":false},{"c":"Z世代恋愛","f":"「結婚しない選択」を選ぶ若者が増加。これは「恋愛しない」ではなく、「結婚という形式を選ばない」ということ。長期的なパートナーシップは別にある場合も。","l":"結婚=幸せの形、という単純化を捨てる。自分が望む関係の形を、自分で定義する。","s":"結婚観の変化","is_surprise":false},{"c":"Z世代恋愛","f":"高校・大学のキャンパスでの「あの子可愛い」「あの先輩かっこいい」的な恋愛は、SNSで「ネット越しの恋愛」に置き換わりつつある。物理的距離と心理的距離が逆転している。","l":"物理的に近い人だけが「身近」ではない。SNS越しの相手も、本物の関係になる時代。","s":"物理-心理距離","is_surprise":false},{"c":"Z世代恋愛","f":"「親に紹介する」タイミングは、Z世代では遅くなる傾向。「結婚を意識した時」まで紹介しない人が増えている。","l":"親への紹介を急がない。それぞれの関係の中で、最適なタイミングを話し合う。","s":"親と恋愛","is_surprise":false},{"c":"Z世代恋愛","f":"アニメ・マンガ・ゲームの「2次元への愛」は、現実の関係を否定するのでなく、別の形の感情体験として理解されつつある。「リアルが全て」は古い価値観。","l":"自分や相手の「2次元への愛」を否定しない。感情のチャンネルは、多様にあって良い。","s":"2.5次元文化","is_surprise":true},{"c":"Z世代恋愛","f":"「グループデート」は、Z世代で復活している。1対1の重さを避け、複数で会うことで、関係をゆっくり始める文化。","l":"いきなり1対1にこだわらない。グループで会うことから始めるのも、安全で楽しい関係の作り方。","s":"グループ社交","is_surprise":false},{"c":"Z世代恋愛","f":"「恋愛の話を友達としすぎる」と、関係が脆くなる傾向。第三者の意見が、自分とパートナーの間に入り込み、関係を歪める。","l":"恋愛の話は、信頼できる少数の人にだけ。SNSで広く話すと、関係が外部の評価に振り回される。","s":"恋愛と社交網","is_surprise":false},{"c":"Z世代恋愛","f":"「失恋ソング」「失恋映画」を見て泣くことは、回復を助ける。感情を表出させる行為が、脳の処理を進める。","l":"失恋した時、感情を抑えない。泣くこと、悲しむことが、回復への正しい道。","s":"感情処理","is_surprise":false},{"c":"Z世代恋愛","f":"「アプリで知り合った人と現実の友達」を分けて考える若者が多い。SNSの世界とリアルの世界、別の関係性のレイヤーとして使い分ける。","l":"関係を「現実」「オンライン」と二分しない。両方を行き来する関係の作り方を、意識的にデザインする。","s":"複層的関係性","is_surprise":false}];
+const GLOSSARY = {"安定型":{"title":"安定型 (Secure)","subtitle":"人口の約50%","trait":"「自分は愛されるに値する、他人は信頼できる」という基本前提を持つ。葛藤が起きても話し合いで解決でき、独立も依存もバランスよくこなす。","love":"感情を素直に表現し、相手の感情も受け止められる。喧嘩しても修復が早い。「重い」「軽い」と評されにくい。長期関係で最も幸せになりやすいタイプ。","tips":"もし自分が違うスタイルでも、安定型と関係を築くことで「earned secure」になれる。安全な関係を経験することが、自分の変化を生む。"},"不安型":{"title":"不安型 (Anxious)","subtitle":"人口の約20%","trait":"「相手に見捨てられるのでは」という不安が強く、関係の確認を頻繁にする。愛されたい欲求が強い分、相手の小さな変化に敏感。","love":"返信速度、態度の変化、SNSの行動などに過敏。詰め寄ると相手が逃げ、それがさらに不安を強める悪循環に入りやすい。回避型に惹かれる傾向。","tips":"確認しても不安は消えない。自分を落ち着かせる仕組み(運動、瞑想、書き出し)を持つ。返信時間を「愛のメーター」にしない練習。"},"回避型":{"title":"回避型 (Avoidant)","subtitle":"人口の約25%","trait":"「親しくなりすぎると自由を失う」と感じ、関係が深まると距離を取る。「忙しい」「一人の時間が欲しい」が口癖。冷たく見えるが、本人も葛藤している。","love":"深い感情の話を避け、相手の不満を「重い」と感じやすい。離れている時は会いたいが、いざ会うと距離を取りたくなる。不安型を「ちょうどいい距離感」と感じてしまう。","tips":"「距離を取りたい」気持ちを「個人時間」として正当化する。同時に、相手にも「あなたの時間も大事」と伝えることで、関係が安定する。"},"恐れ型":{"title":"恐れ型 (Disorganized)","subtitle":"人口の約5%","trait":"「親しくなりたい、でも怖い」という矛盾を抱える。近づくと逃げ、離れると追う。最も不安定なスタイル。トラウマ経験がある場合に多い。","love":"関係が深まる瞬間に、急に冷たくなったり、別れたいと言ったりする。本人も自分の行動が理解できないことが多い。","tips":"一人で乗り越えようとせず、カウンセリングや専門家の支援を選択肢に。スタイルは変えられる。"},"INFP":{"title":"INFP - 仲介者","subtitle":"理想主義的なロマンチスト","trait":"深い内的世界を持ち、自分の価値観に忠実。創造的で、繊細な感受性を持つ。人口の約4%。","love":"理想の愛を強く求める。深い感情的繋がりを最重視し、表面的な関係に満足できない。相手に過剰な理想を投影し、「これは違う」と感じやすい。","tips":"理想を持つのは美しいが、現実の不完全な相手を愛する練習が、本当の成長になる。「100%でなくてもいい」と自分に許可する。"},"INFJ":{"title":"INFJ - 提唱者","subtitle":"最も希少なタイプ","trait":"人口の1〜2%。深い洞察力と直観を持ち、人の本質を見抜く。理想を追求し、自分の使命を求める。","love":"「魂のパートナー」を求める傾向が強く、出会いの基準が高い。妥協を嫌い、長く独身でいることも。深く愛するが、自分の感情を表現するのは苦手。","tips":"完璧な相手を求めすぎず、現実の人間と関係を築く中で、自分の理想自体が成熟することを許す。"},"INTJ":{"title":"INTJ - 建築家","subtitle":"戦略的なビジョナリー","trait":"長期的な視点と論理的思考を持つ。独立心が強く、自分の計画通りに進める。感情よりロジック。","love":"戦略的に相手を選ぶ。「この人と長期的に成長できるか」が基準。感情表現は苦手だが、選んだ相手には深くコミット。派手な愛情表現は期待できない。","tips":"INTJに愛されたら、それは論理的に選ばれた結果。「もっと愛して」と求めるより、行動の中の愛を見る。"},"INTP":{"title":"INTP - 論理学者","subtitle":"思考の探求者","trait":"抽象的な概念を愛し、論理的整合性を求める。社交は苦手だが、知的な対話には情熱を持つ。","love":"恋愛そのものに不器用。論理で考えすぎて、感情的な瞬間を逃す。ただし一度信頼すると、深く誠実な関係を築く。","tips":"INTPの「考えすぎて行動できない」は欠点でなく特性。気長に待つ価値がある。"},"ENFP":{"title":"ENFP - 運動家","subtitle":"可能性の探求者","trait":"創造的で熱意があり、新しい体験を愛する。人との繋がりを大事にし、感情豊か。","love":"恋愛初期にもっとも輝く。「運命の人」と感じやすいが、その情熱は持続が難しい。「日常」に入ると退屈を感じ、関係を疑い始める。","tips":"「初期の魔法」を関係の指標にしない訓練が必要。落ち着いた関係の中の小さな新鮮さに目を向ける。"},"ENFJ":{"title":"ENFJ - 主人公","subtitle":"カリスマ的なリーダー","trait":"他人の成長を引き出すのが得意。社交的で、人々を結びつける。共感力が高い。","love":"「相手の成長」を愛する。パートナーが夢を追うのを支援することに喜びを感じる。一方で「自分のニーズ」を後回しにしすぎる傾向。","tips":"尽くしすぎないこと。自分の夢や欲求も、関係の中で表現する。"},"ENTP":{"title":"ENTP - 討論者","subtitle":"知的な挑戦者","trait":"新しいアイデアと議論を愛する。型にはまることを嫌い、常に新しい可能性を探る。","love":"議論好きで、パートナーとも知的な議論を楽しむ。相手にとっては「攻撃されている」と感じることも。退屈を最も嫌う。","tips":"ENTPの議論は愛情表現の一つ。知的好奇心を共有できるパートナーが必要。"},"ENTJ":{"title":"ENTJ - 指揮官","subtitle":"天性のリーダー","trait":"目標達成への意志が強く、効率を重視する。決断力と実行力を持つ。感情より結果。","love":"明確で力強いリーダーシップで関係を引っ張るが、感情の機微を見落としがち。「結果」を求め、デートも「次に繋がるか」を意識する。","tips":"ENTJと付き合うなら、感情は言葉で明確に。「察してほしい」は通じない。"},"ISFJ":{"title":"ISFJ - 擁護者","subtitle":"献身的な保護者","trait":"他人の小さなニーズに気づき、静かに尽くす。伝統と安定を愛する。自分のことは後回し。","love":"最も献身的なタイプの一つ。パートナーの好みを覚え、静かに尽くす。ただし自分の不満は口に出さず、ある日突然爆発することがある。","tips":"ISFJの愛は見えにくい。気づいて言葉で感謝するだけで、関係の質が変わる。"},"ISTJ":{"title":"ISTJ - 管理者","subtitle":"実直な実務家","trait":"責任感が強く、約束を守る。伝統と秩序を重視。感情表現は控えめだが、深い忠誠心を持つ。","love":"最も浮気しないタイプとされる。一度コミットすると、論理的・道徳的にそれを破ることを嫌う。安定の代名詞。","tips":"派手ではないが揺るがない。「燃え上がる」を期待すると違うが、「続く」を求めるなら最強。"},"ESFJ":{"title":"ESFJ - 領事官","subtitle":"社交的な世話役","trait":"人々の調和を大事にし、社会的な繋がりを育てる。他人の感情に敏感で、サポート上手。","love":"「みんな仲良く」を最も大事にする。パートナーが家族や友人に受け入れられるかを重視。「自分たちだけの愛」より「集団の中の愛」。","tips":"ESFJと付き合うなら、その人の周囲とも良い関係を築く。それが関係の安定に直結する。"},"ESTJ":{"title":"ESTJ - 幹部","subtitle":"実践的なリーダー","trait":"実用的で組織的。明確なルールと役割を好む。責任感が強く、伝統的な価値観を持つ。","love":"伝統的で安定志向。「結婚→家庭→子供」のような順序を大事にする。パートナーにも明確な役割と方向性を求める傾向。","tips":"ESTJと付き合うなら、関係の「次のステップ」を明確にする。曖昧な状態はストレスになる。"},"ISFP":{"title":"ISFP - 冒険家","subtitle":"感性の芸術家","trait":"感覚的で、美と自然を愛する。価値観に従って静かに生きる。深い内的世界を持つ。","love":"愛情を静かに、深く感じる。派手な表現はしないが、内側では激しく愛している。誤解されやすい愛し方。","tips":"ISFPの「静かさ」は無関心ではない。日常の小さな気遣いに、深い愛が込められている。"},"ISTP":{"title":"ISTP - 巨匠","subtitle":"実用的な問題解決者","trait":"手を動かして問題を解決する。論理的だが、感情を言葉にするのは苦手。独立心が強い。","love":"感情を言葉にするのが最も苦手なタイプの一つ。愛情は行動(修理してくれる、一緒にいてくれる)で示す。「愛してる」を言わせようとすると関係が壊れる。","tips":"愛は言葉だけではない。行動で愛を示すタイプを「冷たい」と判断しない。"},"ESFP":{"title":"ESFP - エンターテイナー","subtitle":"今を生きる楽天家","trait":"楽しいことが大好きで、エネルギッシュ。即興と感覚を重視し、計画より体験を選ぶ。","love":"デートを楽しく演出するのが得意。一方で「将来の計画」「真剣な話」を避ける傾向。","tips":"ESFPと長期関係を望むなら、深い話を「楽しい雰囲気」の中に混ぜる工夫が要る。重く構えると逃げられる。"},"ESTP":{"title":"ESTP - 起業家","subtitle":"アクション派","trait":"リスクを楽しみ、即興と実行を重視する。エネルギッシュで、退屈を嫌う。","love":"アクション派のデート。レストランより冒険を、座って話すより一緒に動くことを好む。","tips":"ESTPと深まりたいなら、レストランより冒険に誘う。動きの中で関係が深まるタイプ。"}};
+
+const FEEDBACK_OPTIONS = [
+  '興味深い','使えそう','面白い',
+  '興味深くない','使えなさそう','おもんない','どちらでもない'
+];
+const POSITIVE_FB = new Set(['興味深い','使えそう','面白い']);
+const NEGATIVE_FB = new Set(['興味深くない','使えなさそう','おもんない']);
+
+// State per mode
+let state = {
+  human: {seen:[], history:[], prefs:{}, currentIdx:-1},
+  love: {seen:[], history:[], prefs:{}, currentIdx:-1}
+};
+let currentMode = null;
+let FACTS = null;
+
+function startMode(mode){
+  currentMode = mode;
+  FACTS = (mode === 'human') ? HUMAN_FACTS : LOVE_FACTS;
+  
+  document.getElementById('start-screen').style.display = 'none';
+  const mainView = document.getElementById('main-view');
+  mainView.classList.add('active');
+  mainView.classList.toggle('love-mode', mode === 'love');
+  
+  const logo = document.getElementById('logo');
+  logo.classList.remove('human', 'love');
+  logo.classList.add(mode);
+  
+  renderFeedback();
+  nextFact();
+}
+
+function goHome(){
+  document.getElementById('start-screen').style.display = 'flex';
+  document.getElementById('main-view').classList.remove('active');
+  document.getElementById('history-list').classList.remove('visible');
+  document.getElementById('history-arrow').textContent = '▾';
+  // resetを行わない - 戻ってきた時の状態を保持
+}
+
+function pickNext(){
+  const s = state[currentMode];
+  const remaining = [];
+  for(let i=0;i<FACTS.length;i++){
+    if(!s.seen.includes(i)) remaining.push(i);
+  }
+  if(remaining.length === 0){
+    s.seen = [];
+    return pickNext();
+  }
+  
+  const wantSurprise = Math.random() < 0.10;
+  if(wantSurprise){
+    const surpriseList = remaining.filter(i => FACTS[i].is_surprise);
+    if(surpriseList.length > 0){
+      return surpriseList[Math.floor(Math.random()*surpriseList.length)];
+    }
+  }
+  
+  const weights = remaining.map(i => {
+    const f = FACTS[i];
+    const score = s.prefs[f.c] || 0;
+    let w = Math.pow(1.5, score);
+    return Math.max(0.2, Math.min(5, w));
+  });
+  const total = weights.reduce((a,b)=>a+b, 0);
+  let r = Math.random() * total;
+  for(let i=0;i<remaining.length;i++){
+    r -= weights[i];
+    if(r <= 0) return remaining[i];
+  }
+  return remaining[remaining.length-1];
+}
+
+function renderFeedback(){
+  const wrap = document.getElementById('fb-buttons');
+  wrap.innerHTML = '';
+  FEEDBACK_OPTIONS.forEach(opt=>{
+    const b = document.createElement('button');
+    b.className = 'fb-btn';
+    b.textContent = opt;
+    b.onclick = () => selectFeedback(opt, b);
+    wrap.appendChild(b);
+  });
+}
+
+function selectFeedback(opt, btn){
+  document.querySelectorAll('.fb-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  
+  const s = state[currentMode];
+  if(s.currentIdx < 0) return;
+  const cat = FACTS[s.currentIdx].c;
+  
+  if(POSITIVE_FB.has(opt)){
+    s.prefs[cat] = (s.prefs[cat] || 0) + 1;
+  } else if(NEGATIVE_FB.has(opt)){
+    s.prefs[cat] = (s.prefs[cat] || 0) - 1;
+  }
+  
+  if(s.history.length > 0 && s.history[s.history.length-1].idx === s.currentIdx){
+    s.history[s.history.length-1].feedback = opt;
+  }
+  renderHistory();
+}
+
+// Parse fact text with ｛term｝ markers, convert to clickable spans
+function parseFactText(text){
+  // Replace ｛term｝ with <span class="term" data-term="term">term</span>
+  return text.replace(/｛([^｝]+)｝/g, (m, term) => {
+    if(GLOSSARY[term]){
+      return `<span class="term" onclick="showPopup('${term}')">${term}</span>`;
+    }
+    return term; // No glossary entry, just remove brackets
+  });
+}
+
+function showPopup(term){
+  const entry = GLOSSARY[term];
+  if(!entry) return;
+  document.getElementById('popup-title').textContent = entry.title;
+  document.getElementById('popup-sub').textContent = entry.subtitle;
+  document.getElementById('popup-trait').textContent = entry.trait;
+  document.getElementById('popup-love').textContent = entry.love;
+  document.getElementById('popup-tips').textContent = entry.tips;
+  
+  const popup = document.getElementById('popup');
+  popup.classList.toggle('love-popup', currentMode === 'love');
+  
+  document.getElementById('popup-bg').classList.add('visible');
+}
+
+function closePopup(event){
+  if(event && event.target.id !== 'popup-bg' && event.currentTarget.id !== 'popup-bg' && !event.target.classList.contains('popup-close')) return;
+  document.getElementById('popup-bg').classList.remove('visible');
+}
+
+async function streamFactText(text, speed){
+  const el = document.getElementById('fact-text');
+  el.innerHTML = '';
+  // Strip ｛｝ for streaming, then replace at end
+  const plainText = text.replace(/[｛｝]/g, '');
+  for(let i=0;i<plainText.length;i++){
+    el.textContent = plainText.slice(0, i+1);
+    await new Promise(r=>setTimeout(r, speed));
+  }
+  // Final: replace with marked version
+  el.innerHTML = parseFactText(text);
+}
+
+function nextFact(){
+  const card = document.getElementById('card');
+  const feedback = document.getElementById('feedback');
+  const lesson = document.getElementById('lesson');
+  
+  card.style.opacity = '0';
+  feedback.classList.remove('visible');
+  lesson.classList.remove('visible');
+  
+  setTimeout(()=>{
+    const s = state[currentMode];
+    const idx = pickNext();
+    s.currentIdx = idx;
+    s.seen.push(idx);
+    const f = FACTS[idx];
+    
+    if(f.is_surprise) card.classList.add('surprise');
+    else card.classList.remove('surprise');
+    
+    document.getElementById('category').textContent = f.c;
+    document.getElementById('fact-text').innerHTML = '';
+    document.getElementById('lesson').textContent = '';
+    document.getElementById('source').textContent = '';
+    document.querySelectorAll('.fb-btn').forEach(b=>b.classList.remove('selected'));
+    
+    document.getElementById('counter').textContent = `${s.seen.length} / ${FACTS.length}`;
+    card.style.opacity = '1';
+    
+    streamFactText(f.f, 14).then(()=>{
+      document.getElementById('lesson').textContent = '→ ' + f.l;
+      lesson.classList.add('visible');
+      document.getElementById('source').textContent = '— ' + f.s;
+      setTimeout(()=>feedback.classList.add('visible'), 200);
+    });
+    
+    s.history.push({idx: idx, feedback: null});
+    renderHistory();
+  }, 350);
+}
+
+function renderHistory(){
+  const s = state[currentMode];
+  const list = document.getElementById('history-list');
+  if(s.history.length === 0){
+    list.innerHTML = '<div style="font-size:10px;color:#444;">まだ履歴がありません</div>';
+    return;
+  }
+  const items = s.history.slice().reverse().slice(0, 30).map(h => {
+    const f = FACTS[h.idx];
+    const fb = h.feedback ? `<span class="h-fb">${h.feedback}</span>` : '';
+    const plainFact = f.f.replace(/[｛｝]/g, '');
+    return `<div class="history-item"><span class="h-cat">${f.c}</span>${fb}<br>${plainFact.slice(0,50)}...</div>`;
+  }).join('');
+  list.innerHTML = items;
+}
+
+function toggleHistory(){
+  const list = document.getElementById('history-list');
+  const arrow = document.getElementById('history-arrow');
+  list.classList.toggle('visible');
+  arrow.textContent = list.classList.contains('visible') ? '▴' : '▾';
+  renderHistory();
+}
+
+function resetSeen(){
+  if(confirm('このモードの履歴をリセットして最初からやり直しますか?')){
+    state[currentMode] = {seen:[], history:[], prefs:{}, currentIdx:-1};
+    document.getElementById('counter').textContent = `0 / ${FACTS.length}`;
+    nextFact();
+  }
+}
+</script>
+</body>
+</html>
