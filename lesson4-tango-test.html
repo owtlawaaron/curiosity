@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="theme-color" content="#28251f">
+<title>Lesson 4 単語テスト</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&family=Shippori+Mincho:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+/* ──────────────────────────────────────────
+   Lesson 4 単語テスト — 試験プリントの再現
+   机の上のわら半紙 / 印字=明朝 / 手書き=クレー / 採点=朱
+   ────────────────────────────────────────── */
+:root{
+  --paper:#f7f2e2;
+  --ink:#2c2823;
+  --ink-soft:#5d564b;
+  --pencil:#6e675c;
+  --red:#bf3a2b;
+  --rule:rgba(44,40,35,.55);
+  --rule-thin:rgba(44,40,35,.26);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{font-size:16px}
+body{
+  min-height:100vh;
+  background:
+    radial-gradient(900px 480px at 50% -8%, rgba(255,255,255,.05), transparent 60%),
+    repeating-linear-gradient(90deg, rgba(0,0,0,.045) 0 1px, transparent 1px 110px),
+    #28251f;
+  padding:34px 12px 80px;
+  font-family:'Shippori Mincho','Hiragino Mincho ProN','Yu Mincho',serif;
+  color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+  letter-spacing:.02em;
+}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer;touch-action:manipulation}
+input{font:inherit;color:inherit}
+.hidden{display:none!important}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+
+/* ── 紙 ── */
+.sheet{
+  position:relative;
+  width:min(640px,100%);
+  margin:0 auto;
+  background:
+    repeating-linear-gradient(1.5deg, rgba(125,105,70,.028) 0 2px, transparent 2px 6px),
+    repeating-linear-gradient(91deg, rgba(80,65,40,.02) 0 1px, transparent 1px 5px),
+    linear-gradient(180deg,#f8f3e5 0%,#f4eddb 100%);
+  padding:38px 34px 30px;
+  box-shadow:0 2px 5px rgba(0,0,0,.5), 0 24px 52px rgba(0,0,0,.55);
+}
+.sheet::before{
+  content:'';position:absolute;inset:0;z-index:-1;
+  background:#ece4cf;
+  transform:rotate(.7deg) translate(4px,5px);
+  box-shadow:0 14px 30px rgba(0,0,0,.45);
+}
+.staple{
+  position:absolute;top:11px;left:15px;width:24px;height:8px;
+  border:2.2px solid #8e887b;border-bottom:none;border-radius:2px 2px 0 0;
+  transform:rotate(-45deg);
+  box-shadow:0 1px 1px rgba(0,0,0,.3);
+}
+@media(max-width:480px){.sheet{padding:32px 20px 26px}}
+
+/* ── 表紙 ── */
+.t-head{text-align:center;padding:4px 0 14px;border-bottom:3px double var(--ink);margin-bottom:16px}
+.t-sub{font-size:.78rem;letter-spacing:.45em;text-indent:.45em;color:var(--ink-soft)}
+h1.t-main{font-size:clamp(1.45rem,5.4vw,1.85rem);font-weight:800;letter-spacing:.1em;margin:7px 0 5px}
+.t-meta{font-size:.76rem;color:var(--ink-soft);letter-spacing:.14em}
+.who{display:flex;justify-content:flex-end;align-items:baseline;gap:14px;margin:2px 0 16px;font-size:.86rem;flex-wrap:wrap}
+.who .blank{letter-spacing:.08em;color:var(--ink-soft)}
+.who input{
+  font-family:'Klee One','Hiragino Maru Gothic ProN',sans-serif;
+  border:0;border-bottom:1.4px solid var(--rule);background:transparent;
+  width:10.5em;font-size:1.04rem;padding:2px 4px;color:#3c382f;
+}
+.who input:focus{outline:none;border-bottom-color:var(--ink)}
+.notice{border:1.6px solid var(--ink);padding:10px 14px;font-size:.85rem;line-height:1.95;margin-bottom:18px}
+.modes{display:flex;flex-direction:column;margin-bottom:16px}
+.mode-row{
+  display:flex;align-items:center;gap:12px;text-align:left;
+  padding:11px 8px;min-height:50px;border-bottom:1px dashed var(--rule-thin);font-size:.94rem;
+}
+.mode-row:first-child{border-top:1px dashed var(--rule-thin)}
+@media(hover:hover){.mode-row:not([disabled]):hover{background:rgba(0,0,0,.035)}}
+.mode-row small{color:var(--ink-soft);font-size:.72rem;margin-left:auto;text-align:right}
+.mode-row[disabled]{opacity:.45;cursor:default}
+.cb{flex:none;width:15px;height:15px;border:1.6px solid var(--ink);position:relative}
+.cb svg{position:absolute;left:-4px;top:-8px;width:25px;height:23px}
+.start-row{text-align:center;margin:10px 0 28px}
+.btn-print{
+  display:inline-block;border:1.8px solid var(--ink);
+  padding:12px 44px;font-size:1.02rem;font-weight:700;
+  letter-spacing:.55em;text-indent:.55em;min-height:48px;
+  transition:background .12s,color .12s;
+}
+@media(hover:hover){.btn-print:hover{background:var(--ink);color:var(--paper)}}
+.btn-print:active{background:var(--ink);color:var(--paper)}
+.record h2{font-size:.84rem;letter-spacing:.3em;text-indent:.3em;margin-bottom:8px;font-weight:700}
+.record table{width:100%;border-collapse:collapse;font-size:.82rem}
+.record th,.record td{border:1px solid var(--rule);padding:6px 8px;text-align:center;font-weight:500}
+.record th{background:rgba(0,0,0,.04);letter-spacing:.2em;font-weight:700}
+.record td.sc{font-family:'Klee One',sans-serif;color:var(--red);font-weight:600}
+.record .none{color:var(--ink-soft);font-size:.8rem}
+.cover-foot{display:flex;justify-content:space-between;align-items:center;margin-top:18px;font-size:.78rem;color:var(--ink-soft);flex-wrap:wrap;gap:6px}
+.snd{display:flex;align-items:center;gap:9px;padding:8px 2px;min-height:44px;color:var(--ink)}
+.snd .cb{width:13px;height:13px}
+.snd .cb svg{left:-4px;top:-8px;width:22px;height:20px}
+
+/* ── テスト ── */
+.q-top{
+  display:flex;justify-content:space-between;align-items:baseline;
+  border-bottom:1.6px solid var(--ink);padding-bottom:8px;margin-bottom:26px;
+  font-size:.8rem;letter-spacing:.16em;color:var(--ink-soft);
+}
+.q-top .cnt{color:var(--ink);font-weight:700;font-size:.95rem;letter-spacing:.1em}
+.q-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:16px;min-height:46px}
+.q-no{font-size:1rem;color:var(--ink-soft)}
+.q-word{
+  font-family:Georgia,'Times New Roman','Shippori Mincho',serif;
+  font-size:clamp(1.65rem,6vw,2.05rem);font-weight:700;letter-spacing:.02em;
+}
+.q-pos{font-size:.9rem;color:var(--ink-soft)}
+.t-note{
+  font-family:'Klee One',sans-serif;color:var(--red);
+  font-size:1.05rem;display:inline-block;margin-left:auto;
+  transform:rotate(-4deg);opacity:0;
+  animation:noteIn .35s ease-out .2s forwards;
+}
+@keyframes noteIn{
+  from{opacity:0;transform:rotate(-4deg) translateY(6px)}
+  to{opacity:.92;transform:rotate(-4deg) translateY(0)}
+}
+.opts{display:flex;flex-direction:column;margin-bottom:4px}
+.opt{
+  position:relative;display:flex;align-items:flex-start;gap:6px;
+  text-align:left;padding:13px 10px 13px 14px;min-height:52px;
+  font-size:1rem;line-height:1.7;border-bottom:1px dashed var(--rule-thin);
+  user-select:none;-webkit-user-select:none;
+}
+.opt:last-child{border-bottom:none}
+@media(hover:hover){.opt:not(:disabled):hover{background:rgba(0,0,0,.04)}}
+.opt:disabled{cursor:default}
+.opt:focus-visible{outline:2px dotted var(--ink);outline-offset:-2px}
+.opt .kana{flex:none;letter-spacing:.04em}
+
+/* 採点マーク (朱) */
+.mk{position:absolute;pointer-events:none;overflow:visible}
+.mk path{
+  fill:none;stroke:var(--red);stroke-linecap:round;stroke-linejoin:round;
+  vector-effect:non-scaling-stroke;opacity:.88;
+  stroke-dasharray:1;stroke-dashoffset:1;
+  animation:draw .42s cubic-bezier(.3,.6,.4,1) forwards;
+}
+@keyframes draw{to{stroke-dashoffset:0}}
+.mk-maru{left:-10px;top:-5px;width:calc(100% + 20px);height:calc(100% + 10px)}
+.mk-maru path{stroke-width:3.6}
+.mk-check{left:-2px;top:50%;width:36px;height:32px;transform:translateY(-62%) rotate(-5deg)}
+.mk-check path{stroke-width:4;animation-duration:.26s}
+@media(prefers-reduced-motion:reduce){
+  .mk path{animation:none;stroke-dashoffset:0}
+  .t-note{animation:none;opacity:.92}
+}
+.q-foot{display:flex;justify-content:space-between;align-items:center;margin-top:24px;gap:10px}
+.quit{font-size:.8rem;color:var(--pencil);padding:10px 4px;min-height:44px}
+.btn-next{border:1.6px solid var(--ink);padding:11px 26px;font-weight:700;letter-spacing:.18em;min-height:48px}
+@media(hover:hover){.btn-next:hover{background:var(--ink);color:var(--paper)}}
+.btn-next:active{background:var(--ink);color:var(--paper)}
+.page-no{text-align:center;margin-top:16px;font-size:.76rem;color:var(--ink-soft);letter-spacing:.3em}
+
+/* ── 採点結果 ── */
+.r-head{display:flex;justify-content:space-between;align-items:baseline;border-bottom:3px double var(--ink);padding-bottom:10px;margin-bottom:8px;flex-wrap:wrap;gap:4px}
+.r-title{font-size:1.12rem;font-weight:800;letter-spacing:.3em}
+.r-date{font-size:.78rem;color:var(--ink-soft)}
+.r-name{text-align:right;font-size:.86rem;margin-bottom:4px}
+.r-name span{
+  font-family:'Klee One',sans-serif;color:#3c382f;
+  border-bottom:1px solid var(--rule);padding:0 16px 2px;font-size:1.02rem;
+  display:inline-block;min-width:7em;
+}
+.score-area{position:relative;min-height:172px;display:flex;align-items:center;justify-content:center;padding:14px 0 4px}
+.score{position:relative;font-family:'Klee One',sans-serif;color:var(--red);transform:rotate(-2.5deg);padding:18px 36px}
+.score .n{font-size:4.4rem;font-weight:600;line-height:1}
+.score .d{font-size:1.5rem;font-weight:600;margin-left:6px}
+.score .mk-maru{left:-4px;top:2px;width:calc(100% + 8px);height:calc(100% - 4px)}
+.score .mk-maru path{stroke-width:3;animation-duration:.55s}
+.score .mk-maru2{left:8px;top:12px;width:calc(100% - 16px);height:calc(100% - 24px)}
+.score .mk-maru2 path{animation-delay:.4s;stroke-width:2.6}
+.stamp{
+  position:absolute;right:6px;top:4px;width:112px;height:112px;
+  border:3px solid rgba(191,58,43,.8);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  font-weight:700;font-size:.92rem;line-height:1.65;letter-spacing:.14em;
+  color:rgba(191,58,43,.88);transform:rotate(-10deg);padding:8px;
+  background:radial-gradient(circle at 32% 30%, rgba(191,58,43,.05), transparent 65%);
+}
+.stamp::before{content:'';position:absolute;inset:5px;border:1.2px solid rgba(191,58,43,.5);border-radius:50%}
+@media(max-width:430px){.stamp{width:94px;height:94px;font-size:.78rem;right:-4px;top:0}}
+.naoshi{margin-top:10px;border-top:1.6px solid var(--ink);padding-top:14px}
+.naoshi h2{font-size:.84rem;letter-spacing:.3em;text-indent:.3em;font-weight:700;margin-bottom:2px}
+.naoshi .hint{font-size:.72rem;color:var(--ink-soft);margin-bottom:8px}
+.w-row{padding:10px 2px;border-bottom:1px dashed var(--rule-thin);font-size:.92rem}
+.w-main{display:flex;align-items:baseline;gap:8px}
+.w-no{color:var(--ink-soft);font-size:.84rem;flex:none}
+.w-en{font-family:Georgia,'Times New Roman',serif;font-weight:700;font-size:1.04rem}
+.w-dots{flex:1;border-bottom:1.5px dotted var(--rule);transform:translateY(-4px);margin:0 4px;min-width:20px}
+.w-ans{font-weight:700}
+.w-sub{font-size:.78rem;color:var(--pencil);margin-top:3px}
+.w-sub s{text-decoration-color:rgba(191,58,43,.7);text-decoration-thickness:1.5px}
+.all-ok{font-size:.9rem;padding:8px 2px;color:var(--ink-soft)}
+.r-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:26px}
+.r-actions .btn-print{letter-spacing:.12em;text-indent:.12em;padding:11px 18px;font-size:.9rem}
+</style>
+</head>
+<body>
+<div class="sr" id="live" aria-live="polite"></div>
+
+<!-- ════ 表紙 ════ -->
+<section class="sheet" id="view-cover">
+  <span class="staple" aria-hidden="true"></span>
+  <header class="t-head">
+    <div class="t-sub">英語・選択問題</div>
+    <h1 class="t-main">Lesson 4　単語テスト</h1>
+    <div class="t-meta">全 72 語　／　出題プリントどおり収録</div>
+  </header>
+
+  <div class="who">
+    <span class="blank">　　年　　組　　番</span>
+    <label for="name-in">氏名</label>
+    <input id="name-in" type="text" autocomplete="off" placeholder="">
+  </div>
+
+  <div class="notice">
+    〔注意〕　次の英単語の意味として正しいものを、<b>ア〜エ</b>のうちから一つずつ選びなさい。解答するとその場で採点されます。
+  </div>
+
+  <div class="modes" role="group" aria-label="出題範囲">
+    <button class="mode-row sel" id="mode-all" onclick="setMode('all')">
+      <span class="cb"></span>プリント通り（全72問）
+      <small>出題順・選択肢とも原本のまま</small>
+    </button>
+    <button class="mode-row" id="mode-r24" onclick="setMode('r24')">
+      <span class="cb"></span>ランダム 24問
+      <small>順番も選択肢も混ぜます</small>
+    </button>
+    <button class="mode-row" id="mode-naoshi" onclick="setMode('naoshi')">
+      <span class="cb"></span>間違い直し
+      <small>まだありません</small>
+    </button>
+  </div>
+
+  <div class="start-row">
+    <button class="btn-print" onclick="start()">開始</button>
+  </div>
+
+  <div class="record">
+    <h2>成績の記録</h2>
+    <table>
+      <thead><tr><th>実施日</th><th>範囲</th><th>得点</th></tr></thead>
+      <tbody id="hist-body"></tbody>
+    </table>
+  </div>
+
+  <div class="cover-foot">
+    <button class="snd" onclick="toggleSound()" aria-pressed="true">
+      <span class="cb" id="snd-cb"></span>採点音を鳴らす
+    </button>
+    <span>Lesson 4 ／ 単語テスト</span>
+  </div>
+</section>
+
+<!-- ════ テスト ════ -->
+<section class="sheet hidden" id="view-quiz">
+  <span class="staple" aria-hidden="true"></span>
+  <div class="q-top">
+    <span>英語・Lesson 4</span>
+    <span class="cnt" id="q-count">1 ／ 24</span>
+  </div>
+
+  <div class="q-head">
+    <span class="q-no" id="q-no">(1)</span>
+    <span class="q-word" id="q-word">cricket</span>
+    <span class="q-pos" id="q-pos">[名]</span>
+    <span id="note-spot"></span>
+  </div>
+
+  <div class="opts" id="opts" role="group" aria-label="選択肢"></div>
+
+  <div class="q-foot">
+    <button class="quit" onclick="quit()">← 表紙にもどる</button>
+    <button class="btn-next hidden" id="btn-next" onclick="next()">次の問題へ</button>
+  </div>
+  <div class="page-no" id="q-page">- 1 -</div>
+</section>
+
+<!-- ════ 採点結果 ════ -->
+<section class="sheet hidden" id="view-result">
+  <span class="staple" aria-hidden="true"></span>
+  <header class="r-head">
+    <span class="r-title">採点結果</span>
+    <span class="r-date" id="res-date"></span>
+  </header>
+  <div class="r-name">氏名　<span id="res-name">　</span></div>
+
+  <div class="score-area">
+    <div class="score">
+      <span class="n" id="res-num">0</span><span class="d" id="res-den">／72</span>
+      <span id="score-maru"></span>
+    </div>
+    <div class="stamp" id="stamp">よく<br>できました</div>
+  </div>
+
+  <div class="naoshi">
+    <h2>直しノート</h2>
+    <p class="hint">※「間違い直し」で正解すると、この一覧から消えます。</p>
+    <div id="wrong-list"></div>
+  </div>
+
+  <div class="r-actions">
+    <button class="btn-print" id="btn-again" onclick="again()">もう一度</button>
+    <button class="btn-print hidden" id="btn-retry-wrong" onclick="start('naoshi')">間違いだけ</button>
+    <button class="btn-print" onclick="backCover()">表紙へ</button>
+  </div>
+</section>
+
+<script>
+// ════ 出題データ (PDF原本・解答キー照合済み) ════
+// [番号, 単語, 品詞, [ア,イ,ウ,エ], 正答index]
+const RAW=[
+[1,"cricket","名",["コオロギ","生産する","大豆","ひどい"],0],
+[2,"cookie","名",["小さな・ミニチュアの","クッキー","同じ","特に"],1],
+[3,"try","動",["クッキー","乾燥した","〜を試す","〜すべきである"],2],
+[4,"sound","動",["水","〜を出す・〜に仕える","急速に","〜に聞こえる"],3],
+[5,"horrible","形",["だし汁・スープ","水","ソース","ひどい"],3],
+[6,"actually","副",["実際には","宇宙・空間","急速に","本当に"],0],
+[7,"tasty","形",["おいしい","ひどい","こねる","着実に"],0],
+[8,"rich","形",["〜の味がする","〜だと思う・推測する","考え・アイデア","豊富な"],3],
+[9,"nutrient","名",["栄養素","怪物・モンスター","実際には","量・額"],0],
+[10,"especially","副",["同じ","地域・エリア","特に","コオロギ"],2],
+[11,"protein","名",["牛肉","粉・粉末","茶碗・ボウル","タンパク質"],3],
+[12,"taste","動",["軽食・おやつ","〜に利益をもたらす","着実に","〜の味がする"],3],
+[13,"insect","名",["豊富な","繁殖する","昆虫","だし汁・スープ"],2],
+[14,"grasshopper","名",["麺・めん","量・額","バッタ","粉・粉末"],2],
+[15,"area","名",["〜に聞こえる","地域・エリア","農場","昆虫"],1],
+[16,"soy","名",["〜を出す・〜に仕える","まだ・それでも","食用の・食べられる","大豆"],3],
+[17,"sauce","名",["こねる","未来","ソース","家畜"],2],
+[18,"soy sauce","名",["まず最初に・第一に","しょうゆ","〜すべきである","未来"],1],
+[19,"culture","名",["〜すべきである","効率的に","地域・エリア","文化"],3],
+[20,"honestly","副",["おいしい","〜を出す・〜に仕える","正直に言うと","育つ・成長する"],2],
+[21,"edible","形",["百","任務・ミッション","食用の・食べられる","量・額"],2],
+[22,"guess","動",["文化","〜だと思う・推測する","生産する","粉・粉末"],1],
+[23,"dislike","動",["安全な・無事な","〜に聞こえる","未来","〜が嫌いである"],3],
+[24,"idea","名",["こねる","考え・アイデア","〜の味がする","実際には"],1],
+[25,"snack","名",["軽食・おやつ","〜を節約する・保つ","うんざりする・不快な","コオロギ"],0],
+[26,"supply","名",["育つ・成長する","着実に","供給・供給量","考え・アイデア"],2],
+[27,"space","名",["軽食・おやつ","宇宙・空間","茶碗・ボウル","栄養素"],1],
+[28,"future","名",["ソース","〜を試す","未来","家畜"],2],
+[29,"astronaut","名",["〜の味がする","レストラン","宇宙飛行士","効率的に"],2],
+[30,"extended","形",["延長された","乾燥した","着実に","ソース"],0],
+[31,"mission","名",["体・身体","任務・ミッション","〜を試す","水"],1],
+[32,"grow","動",["実際には","まず最初に・第一に","〜の味がする","育つ・成長する"],3],
+[33,"reproduce","動",["体・身体","栄養素","昆虫","繁殖する"],3],
+[34,"rapidly","副",["任務・ミッション","急速に","軽食・おやつ","〜を必要とする"],1],
+[35,"small","形",["〜を必要とする","小さい","百","タンパク質"],1],
+[36,"farm","名",["急速に","積み荷・負荷","農場","〜に聞こえる"],2],
+[37,"produce","動",["生産する","〜が嫌いである","粉・粉末","ひどい"],0],
+[38,"steadily","副",["麺・めん","うんざりする・不快な","体・身体","着実に"],3],
+[39,"water","名",["考え・アイデア","水","文化","うんざりする・不快な"],1],
+[40,"beef","名",["リットル（容量の単位）","小さな・ミニチュアの","牛肉","クッキー"],2],
+[41,"require","動",["怪物・モンスター","栄養素","〜を必要とする","正直に言うと"],2],
+[42,"load","名",["積み荷・負荷","牛肉","乾燥した","冒険好きな"],0],
+[43,"really","副",["コオロギ","本当に","軽食・おやつ","〜に利益をもたらす"],1],
+[44,"liter","名",["麺・めん","軽食・おやつ","食用の・食べられる","リットル（容量の単位）"],3],
+[45,"kilogram","名",["ミルワーム（ミールワーム）","考え・アイデア","キログラム（重さの単位）","うんざりする・不快な"],2],
+[46,"same","形",["栄養素","同じ","考え・アイデア","効率的に"],1],
+[47,"amount","名",["〜の味がする","麺・めん","量・額","コオロギ"],2],
+[48,"mealworm","名",["小さな・ミニチュアの","怪物・モンスター","ミルワーム（ミールワーム）","牛肉"],2],
+[49,"efficiently","副",["うんざりする・不快な","着実に","〜を試す","効率的に"],3],
+[50,"livestock","名",["家畜","麺・めん","栄養素","まだ・それでも"],0],
+[51,"conserve","動",["こねる","だし汁・スープ","〜を節約する・保つ","宇宙・空間"],2],
+[52,"still","副",["まだ・それでも","〜を試す","ひどい","食用の・食べられる"],0],
+[53,"disgusting","形",["〜を節約する・保つ","水","うんざりする・不快な","怪物・モンスター"],2],
+[54,"miniature","形",["考え・アイデア","小さな・ミニチュアの","茶碗・ボウル","タンパク質"],1],
+[55,"monster","名",["量・額","小さい","〜に聞こえる","怪物・モンスター"],3],
+[56,"favorite","形",["量・額","こねる","一番好きな・お気に入りの","食用の・食べられる"],2],
+[57,"restaurant","名",["量・額","〜すべきである","レストラン","栄養素"],2],
+[58,"serve","動",["正直に言うと","まだ・それでも","〜が嫌いである","〜を出す・〜に仕える"],3],
+[59,"hundred","名",["育つ・成長する","百","農場","大豆"],1],
+[60,"broth","名",["だし汁・スープ","延長された","〜に聞こえる","効率的に"],0],
+[61,"bowl","名",["家畜","考え・アイデア","茶碗・ボウル","特に"],2],
+[62,"dried","形",["急速に","水","繁殖する","乾燥した"],3],
+[63,"powder","名",["麺・めん","農場","粉・粉末","同じ"],2],
+[64,"knead","動",["〜を必要とする","急速に","こねる","うれしい・喜んでいる"],2],
+[65,"noodle","名",["麺・めん","茶碗・ボウル","体・身体","特に"],0],
+[66,"safe","形",["本当に","急速に","安全な・無事な","食用の・食べられる"],2],
+[67,"adventurous","形",["冒険好きな","クッキー","だし汁・スープ","量・額"],0],
+[68,"should","助",["大豆","〜すべきである","バッタ","百"],1],
+[69,"glad","形",["ミルワーム（ミールワーム）","冒険好きな","うれしい・喜んでいる","同じ"],2],
+[70,"benefit","動",["〜に利益をもたらす","体・身体","茶碗・ボウル","地域・エリア"],0],
+[71,"body","名",["〜の味がする","宇宙・空間","文化","体・身体"],3],
+[72,"first","副",["着実に","まず最初に・第一に","実際には","軽食・おやつ"],1],
+];
+const Q=RAW.map(r=>({n:r[0],w:r[1],p:r[2],o:r[3],a:r[4]}));
+
+// ════ 採点マーク (手描きSVG) ════
+const KANA=['ア','イ','ウ','エ'];
+const MARU_PATH='M150 7 C72 4 16 15 14 28 C12 44 72 53 152 51 C234 49 288 40 286 26 C284 12 220 5 150 7 C124 8 102 9 90 11';
+const MARU='<svg class="mk mk-maru" viewBox="0 0 300 56" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="'+MARU_PATH+'"/></svg>';
+const MARU2='<svg class="mk mk-maru mk-maru2" viewBox="0 0 300 56" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="'+MARU_PATH+'"/></svg>';
+const CHECK='<svg class="mk mk-check" viewBox="0 0 48 44" aria-hidden="true"><path pathLength="1" d="M7 23 L19 37 L41 7"/></svg>';
+const PCHECK='<svg viewBox="0 0 48 44" aria-hidden="true"><path d="M7 23 L19 37 L41 7" fill="none" stroke="#6e675c" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+// ════ 保存 ════
+const KEY='l4_tango_v1';
+let DB=Object.assign({name:'',sound:true,wrong:[],hist:[]},(()=>{try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){return{}}})());
+function save(){try{localStorage.setItem(KEY,JSON.stringify(DB))}catch(e){}}
+const el=id=>document.getElementById(id);
+
+// ════ 音 (ペンのかすれ音・WebAudio合成) ════
+let AC=null;
+function ac(){
+  if(!DB.sound)return null;
+  if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){return null}}
+  if(AC.state==='suspended')AC.resume();
+  return AC;
+}
+function penSwish(f){
+  const c=ac();if(!c)return;
+  const dur=.09,buf=c.createBuffer(1,c.sampleRate*dur,c.sampleRate),d=buf.getChannelData(0);
+  for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*(1-i/d.length);
+  const src=c.createBufferSource();src.buffer=buf;
+  const bp=c.createBiquadFilter();bp.type='bandpass';bp.frequency.value=f||1800;bp.Q.value=.9;
+  const g=c.createGain();g.gain.value=.22;
+  src.connect(bp);bp.connect(g);g.connect(c.destination);src.start();
+}
+function tick(freq){
+  const c=ac();if(!c)return;
+  const o=c.createOscillator(),g=c.createGain();
+  o.type='sine';o.frequency.value=freq||880;
+  g.gain.setValueAtTime(.0001,c.currentTime);
+  g.gain.exponentialRampToValueAtTime(.16,c.currentTime+.008);
+  g.gain.exponentialRampToValueAtTime(.0001,c.currentTime+.13);
+  o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.14);
+}
+document.addEventListener('pointerdown',function once(){if(DB.sound)ac();document.removeEventListener('pointerdown',once)});
+
+// ════ ユーティリティ ════
+function shuffle(a){const x=[...a];for(let i=x.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[x[i],x[j]]=[x[j],x[i]]}return x}
+function reiwa(){const d=new Date();return{y:d.getFullYear()-2018,m:d.getMonth()+1,dd:d.getDate()}}
+function go(v){['cover','quiz','result'].forEach(x=>el('view-'+x).classList.toggle('hidden',x!==v));window.scrollTo({top:0})}
+function announce(t){el('live').textContent=t}
+
+// ════ 表紙 ════
+let pickMode='all';
+function setMode(m){
+  if(m==='naoshi'&&!DB.wrong.length)return;
+  pickMode=m;
+  ['all','r24','naoshi'].forEach(x=>{
+    const r=el('mode-'+x),s=x===m;
+    r.classList.toggle('sel',s);
+    r.querySelector('.cb').innerHTML=s?PCHECK:'';
+  });
+}
+function toggleSound(){DB.sound=!DB.sound;save();el('snd-cb').innerHTML=DB.sound?PCHECK:'';}
+function renderCover(){
+  el('name-in').value=DB.name||'';
+  el('snd-cb').innerHTML=DB.sound?PCHECK:'';
+  const n=DB.wrong.length,nr=el('mode-naoshi');
+  nr.querySelector('small').textContent=n?n+'問たまっています':'まだありません';
+  if(n){nr.removeAttribute('disabled')}else{nr.setAttribute('disabled','');if(pickMode==='naoshi')setMode('all')}
+  setMode(pickMode);
+  const tb=el('hist-body');
+  tb.innerHTML=DB.hist.length
+    ? DB.hist.map(h=>'<tr><td>'+h.d+'</td><td>'+h.m+'</td><td class="sc">'+h.s+'</td></tr>').join('')
+    : '<tr><td colspan="3" class="none">記録はまだありません</td></tr>';
+}
+el('name-in').addEventListener('input',e=>{DB.name=e.target.value;save()});
+
+// ════ テスト本体 ════
+let T=null;
+function start(forceMode){
+  const mode=forceMode||pickMode;
+  let list;
+  if(mode==='all'){
+    list=Q.map((q,i)=>({qi:i,shuf:null}));
+  }else if(mode==='r24'){
+    list=shuffle(Q.map((q,i)=>i)).slice(0,24).map(qi=>({qi,shuf:shuffle([0,1,2,3])}));
+  }else{
+    if(!DB.wrong.length){renderCover();go('cover');return}
+    list=shuffle(DB.wrong.filter(i=>i>=0&&i<Q.length)).map(qi=>({qi,shuf:shuffle([0,1,2,3])}));
+  }
+  if(!list.length)return;
+  T={mode,list,idx:0,ok:0,streak:0,answers:[],milestones:{},answered:false};
+  go('quiz');renderQ();
+}
+function renderQ(){
+  const item=T.list[T.idx],q=Q[item.qi],map=item.shuf||[0,1,2,3];
+  el('q-no').textContent='('+q.n+')';
+  el('q-word').textContent=q.w;
+  el('q-pos').textContent='['+q.p+']';
+  el('q-count').textContent=(T.idx+1)+' ／ '+T.list.length;
+  el('q-page').textContent='- '+(T.idx+1)+' -';
+  el('note-spot').innerHTML='';
+  const box=el('opts');box.innerHTML='';
+  map.forEach((orig,di)=>{
+    const b=document.createElement('button');
+    b.className='opt';b.type='button';
+    b.innerHTML='<span class="kana">'+KANA[di]+'．</span><span>'+q.o[orig]+'</span>';
+    b.onclick=()=>pick(di);
+    box.appendChild(b);
+  });
+  el('btn-next').classList.add('hidden');
+  T.answered=false;
+}
+const NOTES={3:'いい調子',5:'この調子！',8:'すばらしい',15:'まさに本物'};
+function pick(di){
+  if(!T||T.answered)return;
+  T.answered=true;
+  const item=T.list[T.idx],q=Q[item.qi],map=item.shuf||[0,1,2,3];
+  const orig=map[di],ok=orig===q.a,cdi=map.indexOf(q.a);
+  const rows=[...document.querySelectorAll('#opts .opt')];
+  rows.forEach(r=>r.disabled=true);
+  rows[cdi].insertAdjacentHTML('beforeend',MARU);
+  if(ok){
+    T.ok++;T.streak++;
+    penSwish();setTimeout(()=>tick(1040),70);
+    const n=NOTES[T.streak];
+    if(n&&!T.milestones[T.streak]){T.milestones[T.streak]=1;el('note-spot').innerHTML='<span class="t-note">'+n+'</span>'}
+    announce('正解');
+  }else{
+    T.streak=0;
+    rows[di].insertAdjacentHTML('beforeend',CHECK);
+    penSwish(750);
+    announce('不正解。正答は'+KANA[cdi]);
+  }
+  T.answers.push({qi:item.qi,ok,picked:orig});
+  const nb=el('btn-next');
+  nb.textContent=(T.idx===T.list.length-1)?'採点する':'次の問題へ';
+  nb.classList.remove('hidden');
+}
+function next(){
+  if(!T||!T.answered)return;
+  T.idx++;
+  if(T.idx>=T.list.length)finish();else renderQ();
+}
+function quit(){
+  if(T&&T.answers.length&&!confirm('テストを中断しますか？採点は行われません。'))return;
+  T=null;renderCover();go('cover');
+}
+
+// ════ 採点結果 ════
+function finish(){
+  const total=T.list.length,ok=T.ok,p=ok/total;
+  T.answers.forEach(a=>{
+    if(!a.ok){if(!DB.wrong.includes(a.qi))DB.wrong.push(a.qi)}
+    else if(T.mode==='naoshi'){DB.wrong=DB.wrong.filter(x=>x!==a.qi)}
+  });
+  const r=reiwa();
+  const lab={all:'全72問',r24:'ランダム24',naoshi:'間違い直し'}[T.mode];
+  DB.hist.unshift({d:'R'+r.y+'.'+r.m+'.'+r.dd,m:lab,s:ok+'／'+total});
+  DB.hist=DB.hist.slice(0,5);
+  save();
+  el('res-date').textContent='令和'+r.y+'年'+r.m+'月'+r.dd+'日';
+  el('res-name').textContent=DB.name||'　';
+  el('res-num').textContent=ok;
+  el('res-den').textContent='／'+total;
+  el('score-maru').innerHTML=(p===1)?MARU+MARU2:MARU;
+  const st=el('stamp');
+  st.innerHTML=(p>=0.9)?'大変よく<br>できました':(p>=0.7)?'よく<br>できました':(p>=0.5)?'もう一歩':'再テスト';
+  const wl=el('wrong-list'),ws=T.answers.filter(a=>!a.ok);
+  if(!ws.length){
+    wl.innerHTML='<p class="all-ok">全問正解。直しはありません。</p>';
+    el('btn-retry-wrong').classList.add('hidden');
+  }else{
+    el('btn-retry-wrong').classList.remove('hidden');
+    wl.innerHTML=ws.map(a=>{
+      const q=Q[a.qi];
+      return '<div class="w-row"><div class="w-main"><span class="w-no">('+q.n+')</span><span class="w-en">'+q.w+'</span><span class="w-dots"></span><span class="w-ans">'+q.o[q.a]+'</span></div><div class="w-sub">あなたの解答：<s>'+q.o[a.picked]+'</s></div></div>';
+    }).join('');
+  }
+  tick(150);setTimeout(()=>penSwish(500),70);
+  go('result');
+}
+function again(){
+  if(T)start(T.mode);
+}
+function backCover(){T=null;renderCover();go('cover')}
+
+// ════ キーボード ════
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT')return;
+  const inQuiz=!el('view-quiz').classList.contains('hidden');
+  const inCover=!el('view-cover').classList.contains('hidden');
+  if(inQuiz&&T){
+    if(!T.answered&&['1','2','3','4'].includes(e.key)){pick(parseInt(e.key)-1);e.preventDefault()}
+    else if(T.answered&&(e.key==='Enter'||e.key===' ')){next();e.preventDefault()}
+    else if(e.key==='Escape'){quit()}
+  }else if(inCover&&e.key==='Enter'){start()}
+});
+
+// ════ 起動 ════
+renderCover();
+</script>
+</body>
+</html>
