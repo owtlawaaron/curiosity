@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>英語1学期-3 復習テスト</title>
+<style>
+:root {
+  --bg: #F2EFE8;
+  --card: #FFFFFF;
+  --ink: #1C1C1C;
+  --faint: #9A9690;
+  --red: #C0392B;
+  --red-bg: #FDECEA;
+  --red-border: #E8A09A;
+  --blue: #2C4A7C;
+  --green: #27724A;
+  --green-bg: #E8F5ED;
+  --green-border: #7DC49A;
+  --border: #D8D2C8;
+  --line: #EDE8E0;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  background-image: linear-gradient(var(--line) 1px, transparent 1px);
+  background-size: 100% 28px;
+  font-family: 'Hiragino Kaku Gothic ProN','Hiragino Sans','Yu Gothic','Meiryo',sans-serif;
+  color: var(--ink);
+  min-height: 100vh;
+  padding-bottom: 80px;
+}
+
+/* ── HEADER ── */
+.header {
+  background: var(--blue);
+  color: #fff;
+  padding: 14px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+.header-left { display: flex; flex-direction: column; gap: 2px; }
+.header-eyebrow { font-size: 10px; opacity: 0.6; letter-spacing: 0.1em; }
+.header-title { font-size: 16px; font-weight: 700; }
+.prog-wrap { text-align: right; }
+.prog-text { font-size: 11px; opacity: 0.65; margin-bottom: 5px; }
+.prog-outer { width: 90px; height: 6px; background: rgba(255,255,255,0.2); border-radius: 3px; overflow: hidden; }
+.prog-inner { height: 100%; background: #F4C842; border-radius: 3px; transition: width 0.35s ease; width: 0%; }
+
+/* ── SECTION TAB ── */
+.sec-tab {
+  display: flex; align-items: center; gap: 10px;
+  margin: 26px 14px 8px;
+}
+.sec-tag {
+  background: var(--blue); color: #fff;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+  padding: 3px 14px 3px 10px;
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 50%, calc(100% - 8px) 100%, 0 100%);
+  white-space: nowrap;
+}
+.sec-line { flex: 1; height: 1px; background: var(--blue); opacity: 0.25; }
+.sec-sub { font-size: 11px; color: var(--faint); white-space: nowrap; }
+
+.instr {
+  margin: 4px 14px 10px;
+  font-size: 13px; font-weight: 600; color: var(--ink);
+  background: #EEF2FA;
+  border-left: 3px solid var(--blue);
+  padding: 7px 10px;
+  border-radius: 0 3px 3px 0;
+  line-height: 1.6;
+}
+
+/* ── QUESTION CARD ── */
+.q-card {
+  background: var(--card);
+  margin: 0 14px 10px;
+  border-radius: 4px;
+  border: 1.5px solid var(--border);
+  overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.q-card.is-correct { border-color: var(--green-border); }
+.q-card.is-wrong   { border-color: var(--red-border); }
+
+.q-head {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 12px 14px 10px;
+  border-bottom: 1px solid var(--line);
+}
+.q-badge {
+  font-family: Georgia, serif; font-style: italic;
+  font-size: 12px; color: var(--faint);
+  min-width: 26px; padding-top: 2px;
+  user-select: none;
+}
+.q-text {
+  font-size: 14px; line-height: 1.7; flex: 1;
+  word-break: break-word; white-space: pre-wrap;
+}
+.q-text em {
+  font-style: normal;
+  text-decoration: underline;
+  text-decoration-color: var(--red);
+  text-underline-offset: 3px;
+}
+
+/* ── OPTIONS ── */
+.q-opts { padding: 5px 0; }
+
+.opt {
+  display: flex; align-items: flex-start; gap: 10px;
+  width: 100%; border: none; background: none;
+  padding: 9px 14px;
+  cursor: pointer; text-align: left;
+  font-family: inherit; font-size: 13.5px;
+  color: var(--ink); line-height: 1.5;
+  transition: background 0.1s;
+  position: relative;
+}
+.opt:not(:last-child) { border-bottom: 1px solid var(--line); }
+.opt:hover:not(:disabled) { background: #F6F3EE; }
+.opt:disabled { cursor: default; }
+
+.opt-n {
+  font-family: 'Courier New', monospace;
+  font-size: 12px; font-weight: 700;
+  color: var(--faint); min-width: 18px;
+  padding-top: 2px; user-select: none;
+  flex-shrink: 0;
+}
+.opt-t { flex: 1; }
+
+/* correct chosen */
+.opt.chosen-correct {
+  background: var(--green-bg) !important;
+}
+.opt.chosen-correct .opt-n { color: var(--green); font-weight: 900; }
+.opt.chosen-correct .opt-t { color: var(--green); font-weight: 700; }
+
+/* wrong chosen */
+.opt.chosen-wrong {
+  background: var(--red-bg) !important;
+}
+.opt.chosen-wrong .opt-n { color: var(--red); }
+.opt.chosen-wrong .opt-t { color: var(--red); text-decoration: line-through; text-decoration-color: var(--red); }
+
+/* reveal the correct answer after wrong */
+.opt.reveal {
+  background: var(--green-bg) !important;
+}
+.opt.reveal .opt-n { color: var(--green); font-weight: 900; }
+.opt.reveal .opt-t { color: var(--green); font-weight: 700; }
+
+/* badge icons */
+.opt.chosen-correct::after,
+.opt.reveal::after,
+.opt.chosen-wrong::after {
+  position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+  font-size: 16px;
+}
+.opt.chosen-correct::after { content: '✓'; color: var(--green); }
+.opt.reveal::after          { content: '✓'; color: var(--green); }
+.opt.chosen-wrong::after    { content: '✗'; color: var(--red); }
+
+/* ── RESULT TAG on card ── */
+.q-result-tag {
+  display: none;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.06em;
+  padding: 5px 14px;
+}
+.q-result-tag.show { display: block; }
+.q-result-tag.ok { background: var(--green-bg); color: var(--green); border-top: 1px solid var(--green-border); }
+.q-result-tag.ng { background: var(--red-bg);   color: var(--red);   border-top: 1px solid var(--red-border); }
+
+
+/* ══════════════════════════════
+   RESULTS SCREEN
+══════════════════════════════ */
+#results-screen {
+  display: none;
+  padding: 0 14px 60px;
+}
+#results-screen.show { display: block; }
+
+.res-score-card {
+  background: var(--blue); color: #fff;
+  border-radius: 6px;
+  padding: 28px 20px 24px;
+  text-align: center;
+  margin-bottom: 20px;
+  margin-top: 24px;
+}
+.res-score-label { font-size: 11px; letter-spacing: 0.14em; opacity: 0.6; margin-bottom: 6px; }
+.res-score-num {
+  font-family: Georgia, serif;
+  font-size: 58px; font-weight: 700; line-height: 1;
+  letter-spacing: -2px;
+}
+.res-score-denom { font-size: 22px; opacity: 0.55; }
+.res-pct {
+  font-size: 20px; font-weight: 700;
+  margin-top: 6px; opacity: 0.85;
+}
+.res-grade {
+  margin-top: 14px; font-size: 20px; font-weight: 700; letter-spacing: 0.04em;
+}
+
+/* wrong list */
+.wrong-section-title {
+  font-size: 13px; font-weight: 700;
+  color: var(--red);
+  border-left: 3px solid var(--red);
+  padding: 2px 0 2px 10px;
+  margin-bottom: 10px;
+}
+.wrong-item {
+  background: var(--card);
+  border: 1.5px solid var(--red-border);
+  border-radius: 4px;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+.wrong-item-head {
+  background: var(--red-bg);
+  padding: 8px 12px;
+  font-size: 12.5px; line-height: 1.6;
+  color: var(--ink);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.wrong-item-ans {
+  padding: 6px 12px;
+  font-size: 12.5px; font-weight: 700;
+  color: var(--green);
+  display: flex; align-items: center; gap: 6px;
+}
+.wrong-item-ans::before {
+  content: '正解';
+  font-size: 10px; font-weight: 700;
+  background: var(--green); color: #fff;
+  padding: 1px 6px; border-radius: 2px;
+  letter-spacing: 0.05em; white-space: nowrap;
+}
+
+/* action buttons */
+.action-btns {
+  display: flex; flex-direction: column; gap: 10px;
+  margin-top: 20px;
+}
+.act-btn {
+  border: none; border-radius: 4px;
+  font-family: inherit; font-size: 14px; font-weight: 700;
+  letter-spacing: 0.05em; padding: 14px 20px;
+  cursor: pointer; transition: opacity 0.15s, transform 0.1s;
+}
+.act-btn:hover { opacity: 0.88; }
+.act-btn:active { transform: scale(0.98); }
+.act-btn.primary { background: var(--red); color: #fff; }
+.act-btn.secondary { background: var(--blue); color: #fff; }
+
+/* ══════════════════════════════
+   RETRY SCREEN
+══════════════════════════════ */
+#retry-screen { display: none; padding-bottom: 60px; }
+#retry-screen.show { display: block; }
+
+.retry-header {
+  background: var(--red); color: #fff;
+  padding: 12px 20px;
+  font-size: 13px; font-weight: 700;
+  letter-spacing: 0.06em;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.retry-round {
+  font-size: 11px; opacity: 0.75; font-weight: 400;
+}
+
+@media (max-width: 480px) {
+  .q-text { font-size: 13.5px; }
+  .opt { font-size: 13px; }
+}
+</style>
+</head>
+<body>
+
+<div class="header" id="main-header">
+  <div class="header-left">
+    <span class="header-eyebrow">高３ スタンダードレベル英語 ～文法編～</span>
+    <span class="header-title">英語1学期-3 復習テスト</span>
+  </div>
+  <div class="prog-wrap">
+    <div class="prog-text" id="prog-text">0 / 62</div>
+    <div class="prog-outer"><div class="prog-inner" id="prog-bar"></div></div>
+  </div>
+</div>
+
+<div id="quiz-screen"></div>
+<div id="results-screen"></div>
+<div id="retry-screen"></div>
+
+<script>
+// ═══════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════
+const SECTIONS = [
+  {
+    label:"第1講（1）", sub:"現在形・進行形・未来",
+    instr:"空欄に入る最も適切なものを選びなさい。",
+    qs:[
+      { text:"A: What do you do?\nB: (　).\nA: And where do you work?",
+        opts:["I'm watching TV","I'm a dentist","I do a lot","I like swimming"], ans:1 },
+      { text:"A: Where is Dad?\nB: I'm not sure, but maybe Mom (　).",
+        opts:["is know","know","is knowing","knows"], ans:3 },
+      { text:"He (　) for Kyoto on vacation next Tuesday.",
+        opts:["has left","is leaving","leave","leaves"], ans:1 },
+      { text:"I'll call you when I (　) my homework.",
+        opts:["finish","finished","will finish","would finish"], ans:0 },
+      { text:"A: Is Bill still using your car?\nB: Yes, I wonder when he (　) it.",
+        opts:["has returned","returned","returns","will return"], ans:3 }
+    ]
+  },
+  {
+    label:"第2講（2）", sub:"現在完了・過去完了・完了進行形",
+    instr:"空欄に入る最も適切なものを選びなさい。",
+    qs:[
+      { text:"Mr. Anderson (　) president for six years before he passed away.",
+        opts:["was being","would be","had been","has been"], ans:2 },
+      { text:"By next April Jane (　) the guitar for seven years.",
+        opts:["will learn","has learned","will be learning","will have been learning"], ans:3 },
+      { text:"I (　) here for more than 10 years now.",
+        opts:["have lived","had lived","live","am living"], ans:0 },
+      { text:"Saki, why don't you take some time off? You (　) too hard lately.",
+        opts:["would work","had worked","should have worked","have been working"], ans:3 },
+      { text:"It has (　) twenty years since my best friend, Miho, and I met in the children's choir.",
+        opts:["been","left","passed","taken"], ans:0 },
+      { text:"His mother (　) for two years.",
+        opts:["has been dead","has died","has dyed","is dead"], ans:0 },
+      { text:"I have just (　) to Hakata Station to see my girlfriend off.",
+        opts:["go","visited","going","went","been"], ans:4 }
+    ]
+  },
+  {
+    label:"第7講 不定詞（1）", sub:"不定詞の用法",
+    instr:"(1)(2)(4)〜(7)は空欄に入る最も適切なものを選びなさい。(3)は下線部に最も近い意味を表すものを選びなさい。",
+    qs:[
+      { text:"The businessman decided (　) a new car.",
+        opts:["buy","to buy","buying","bought"], ans:1 },
+      { text:"After a lot of problems she (　) to learn to drive a car.",
+        opts:["gave up","managed","put off","succeeded"], ans:1 },
+      { text:"Our teacher's words <em>proved</em> to be true when I passed the exam.",
+        opts:["turned out","turned around","turned in","turned about"], ans:0 },
+      { text:"On the last day of the festival this year, a violin concert (　) held at this hall.",
+        opts:["has been","is to be","was to have","had to"], ans:1 },
+      { text:"She wanted something (　).",
+        opts:["drink","to drink","drinking","drunk"], ans:1 },
+      { text:"I have nothing (　). Will you lend me your pencil?",
+        opts:["to write","to write with","to write for","to write by"], ans:1 },
+      { text:"I am going to take the bus (　) money.",
+        opts:["for save","to save","saving","by saving"], ans:1 }
+    ]
+  },
+  {
+    label:"第8講 不定詞（2）", sub:"不定詞の構文・慣用表現",
+    instr:"(1)〜(6)(8)(9)は空欄に入る最も適切なものを選びなさい。(7)は各英文の内容がほぼ同じになるように空欄に入る最も適切なものを選びなさい。",
+    qs:[
+      { text:"Is there anything for (　) on?",
+        opts:["I to sit","me sitting","me to sit","my sitting"], ans:2 },
+      { text:"The boy opened the window, although his mother told him (　).",
+        opts:["don't do","not do it","not to","to not"], ans:2 },
+      { text:"The old man is said (　) a great athlete when he was young.",
+        opts:["to have been","to be","being","was"], ans:0 },
+      { text:"The girl was so kind (　) me to the station.",
+        opts:["as to take","for taking","in order to take","that it takes"], ans:0 },
+      { text:"He made us stay late (　) we could finish the report by next morning.",
+        opts:["however","therefore","accordingly","so that"], ans:3 },
+      { text:"I'm going to study harder (　) pass my exams in June.",
+        opts:["so to","for to","in order that","in order to"], ans:3 },
+      { text:"You only have to answer these questions.\n＝ (　) you have to do is answer these questions.",
+        opts:["All","For","That","Things"], ans:0 },
+      { text:"She speaks French, to say (　) of English.",
+        opts:["anything","something","everything","nothing"], ans:3 },
+      { text:"Men are generally (　) to sign up for volunteer work.",
+        opts:["pleasant","reluctant","comparative","compact"], ans:1 }
+    ]
+  },
+  {
+    label:"第9講 動名詞", sub:"動名詞の用法・慣用表現",
+    instr:"空欄に入る最も適切なものを選びなさい。",
+    qs:[
+      { text:"You'll soon get used to (　) a book carefully.",
+        opts:["have been reading","reading","be read","have read"], ans:1 },
+      { text:"The child doesn't mind (　) his mother.",
+        opts:["to help","it helped","helping","help"], ans:2 },
+      { text:"A: Do you still plan to go to Hawaii this winter vacation?\nB: Yes, and I wish you'd consider (　) with me.",
+        opts:["go","going","to go","to going"], ans:1 },
+      { text:"I am looking forward to (　) you again.",
+        opts:["see","seeing","have seen","be seen"], ans:1 },
+      { text:"You ought to think about giving up (　). It's bad for your health.",
+        opts:["smoking","to smoke","smoke","being smoking"], ans:0 },
+      { text:"You don't have to avoid (　) noise when you eat Japanese noodles.",
+        opts:["to make","make","making","having made"], ans:2 },
+      { text:"A: How did you do on the test?\nB: I don't know. For some reason, they've put off (　) the results until the end of the month.",
+        opts:["announce","announcement","announcing","to announce"], ans:2 },
+      { text:"Please don't forget (　) this letter tomorrow.",
+        opts:["to mail","mailing","for mailing","to have mailed"], ans:0 },
+      { text:"My sister insisted (　) the problem by myself.",
+        opts:["me to solve","on me to solve","on my solving","that I should be solved"], ans:2 },
+      { text:"I cannot help (　) when I see the cat.",
+        opts:["smile","smiled","smiles","smiling"], ans:3 },
+      { text:"What do you say (　) cards instead of tennis during lunch hour?",
+        opts:["playing","to play","to playing","we played"], ans:2 },
+      { text:"Taro is now devoting all his time and energy (　) English.",
+        opts:["studying","to studying","to study","study"], ans:1 }
+    ]
+  },
+  {
+    label:"第12講 受動態", sub:"受動態の用法",
+    instr:"次の問いに答えなさい。",
+    qs:[
+      { text:"Simple telescopes were first invented by the Dutch, and later they (　) by the Italians.",
+        opts:["were developed","have developed","were developing","had been developing"], ans:0 },
+      { text:"GDPの順位でいうと，Germanyは何位でしょうか。\nThe United States has the highest GDP; then come Japan and China, followed by Germany and other Western European democracies.",
+        opts:["3位","4位","5位"], ans:1 },
+      { text:"On her way home from school, the little girl was (　) a stranger.",
+        opts:["spoken","spoken to by","spoken to","spoke","spoken by to"], ans:1 },
+      { text:"The question will (　) in the next lesson.",
+        opts:["be dealt","be dealt with","be dealing with","deal with"], ans:1 },
+      { text:"The girl was heard (　).",
+        opts:["sang","sing","to be sung","to sing"], ans:3 },
+      { text:"I was made (　) all day last Sunday.",
+        opts:["work","to work","to working","be working"], ans:1 }
+    ]
+  },
+  {
+    label:"第13講 関係詞（1）", sub:"関係代名詞・関係副詞",
+    instr:"空欄に入る最も適切なものを選びなさい。",
+    qs:[
+      { text:"I met the doctor (　) had helped my brother after the accident.",
+        opts:["whose","whom","which","who"], ans:3 },
+      { text:"There was no comment from the lady (　) I thought was sure to protest.",
+        opts:["whom","of whom","who","whose"], ans:2 },
+      { text:"This is the very dictionary (　) I have been looking for.",
+        opts:["what","that","all","where"], ans:1 },
+      { text:"Last night Cindy told me about her new job in Tokyo, (　) she appears to be enjoying very much.",
+        opts:["which","where","what","when"], ans:0 },
+      { text:"That terrible incident occurred in 1991, (　) I was still a baby.",
+        opts:["where","when","which","that"], ans:1 },
+      { text:"This is (　) you can start this washing machine.",
+        opts:["how","what","that","which"], ans:0 },
+      { text:"That is the house (　) they lived 10 years ago.",
+        opts:["which","in which","that","what"], ans:1 },
+      { text:"Mr. Smith is the very person (　) we got the information.",
+        opts:["from whom","that","to that","who"], ans:0 }
+    ]
+  },
+  {
+    label:"第14講 関係詞（2）", sub:"what・複合関係詞",
+    instr:"空欄に入る最も適切なものを選びなさい。",
+    qs:[
+      { text:"No student could understand (　) the English sentence meant.",
+        opts:["what","that","how","why"], ans:0 },
+      { text:"Thank you, Hiromi. This book is exactly (　) I wanted.",
+        opts:["what","which","of which","that"], ans:0 },
+      { text:"(　) students need to know is written in the school handbook.",
+        opts:["Which","When","Whose","What"], ans:3 },
+      { text:"She is no longer (　) she used to be.",
+        opts:["which","why","that","what"], ans:3 },
+      { text:"She is modest, and (　) is more, very beautiful.",
+        opts:["as","what","that","which"], ans:1 },
+      { text:"(　) teaches him, he will never understand this simple rule.",
+        opts:["Someone","Anyone","Whoever","Who"], ans:2 },
+      { text:"Let me speak to (　) is waiting for me.",
+        opts:["whomever","who","what","whoever"], ans:3 },
+      { text:"I'd rather have a room of my own, (　) small it may be.",
+        opts:["however","no matter","even if","whatever"], ans:0 }
+    ]
+  }
+];
+
+// flatten all questions with section/index references
+const ALL_QS = [];
+SECTIONS.forEach((sec, si) => {
+  sec.qs.forEach((q, qi) => {
+    ALL_QS.push({ ...q, secLabel: sec.label, secSub: sec.sub, qiInSec: qi });
+  });
+});
+const TOTAL = ALL_QS.length;
+
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+let mode = 'main';      // 'main' | 'results' | 'retry'
+let answered = 0;
+let correctCount = 0;
+let wrongIdxs = [];     // indices into ALL_QS that were wrong (main round)
+let retrySet = [];      // flat list for current retry round
+let retryAnswered = 0;
+let retryCorrect = 0;
+let retryWrong = [];    // indices into retrySet that were wrong
+let retryRound = 0;
+
+// ═══════════════════════════════════════
+// DOM REFS
+// ═══════════════════════════════════════
+const quizScreen   = document.getElementById('quiz-screen');
+const resultsScreen= document.getElementById('results-screen');
+const retryScreen  = document.getElementById('retry-screen');
+const progText     = document.getElementById('prog-text');
+const progBar      = document.getElementById('prog-bar');
+
+// ═══════════════════════════════════════
+// BUILD MAIN QUIZ
+// ═══════════════════════════════════════
+function buildMain() {
+  quizScreen.innerHTML = '';
+  answered = 0; correctCount = 0; wrongIdxs = [];
+
+  let globalIdx = 0;
+  let prevSec = '';
+
+  SECTIONS.forEach((sec, si) => {
+    // section header
+    const tab = document.createElement('div');
+    tab.className = 'sec-tab';
+    tab.innerHTML = `<div class="sec-tag">${sec.label}</div>
+      <div class="sec-line"></div>
+      <div class="sec-sub">${sec.sub}</div>`;
+    quizScreen.appendChild(tab);
+
+    const instr = document.createElement('p');
+    instr.className = 'instr';
+    instr.textContent = sec.instr;
+    quizScreen.appendChild(instr);
+
+    sec.qs.forEach((q, qi) => {
+      const idx = globalIdx++;
+      quizScreen.appendChild(makeCard(q, qi, idx, false));
+    });
+  });
+
+  updateProg(0, TOTAL);
+}
+
+// ═══════════════════════════════════════
+// BUILD RETRY SCREEN
+// ═══════════════════════════════════════
+function buildRetry(questions, round) {
+  retryScreen.innerHTML = '';
+  retryAnswered = 0; retryCorrect = 0; retryWrong = [];
+
+  const hdr = document.createElement('div');
+  hdr.className = 'retry-header';
+  hdr.innerHTML = `<span>🔄 間違えた問題のみ解き直す</span><span class="retry-round">第${round}回目</span>`;
+  retryScreen.appendChild(hdr);
+
+  questions.forEach((q, i) => {
+    retryScreen.appendChild(makeCard(q, i, i, true));
+  });
+
+  updateProg(0, questions.length);
+}
+
+// ═══════════════════════════════════════
+// MAKE CARD
+// ═══════════════════════════════════════
+function makeCard(q, displayNum, trackIdx, isRetry) {
+  const card = document.createElement('div');
+  card.className = 'q-card';
+
+  // head
+  const head = document.createElement('div');
+  head.className = 'q-head';
+
+  const badge = document.createElement('div');
+  badge.className = 'q-badge';
+  badge.textContent = `(${displayNum + 1})`;
+
+  const text = document.createElement('div');
+  text.className = 'q-text';
+  // parse <em> and \n
+  const lines = q.text.split('\n');
+  lines.forEach((line, li) => {
+    if (li > 0) text.appendChild(document.createElement('br'));
+    const sp = document.createElement('span');
+    sp.innerHTML = line.replace(/<em>(.*?)<\/em>/g, '<em>$1</em>');
+    text.appendChild(sp);
+  });
+
+  head.appendChild(badge);
+  head.appendChild(text);
+  card.appendChild(head);
+
+  // options
+  const optsWrap = document.createElement('div');
+  optsWrap.className = 'q-opts';
+
+  q.opts.forEach((opt, oi) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt';
+    btn.innerHTML = `<span class="opt-n">${oi + 1}.</span><span class="opt-t">${opt}</span>`;
+
+    btn.addEventListener('click', function() {
+      if (card.dataset.done === '1') return;
+      card.dataset.done = '1';
+
+      const allBtns = optsWrap.querySelectorAll('.opt');
+      allBtns.forEach(b => b.disabled = true);
+
+      const tag = card.querySelector('.q-result-tag');
+
+      if (oi === q.ans) {
+        btn.classList.add('chosen-correct');
+        card.classList.add('is-correct');
+        tag.className = 'q-result-tag show ok';
+        tag.textContent = '⭕  正解！';
+        if (isRetry) { retryCorrect++; }
+        else { correctCount++; }
+      } else {
+        btn.classList.add('chosen-wrong');
+        allBtns[q.ans].classList.add('reveal');
+        card.classList.add('is-wrong');
+        tag.className = 'q-result-tag show ng';
+        tag.textContent = `✕  不正解  ―  正解：${q.ans + 1}. ${q.opts[q.ans]}`;
+        if (isRetry) { retryWrong.push(trackIdx); }
+        else { wrongIdxs.push(trackIdx); }
+      }
+
+      if (isRetry) {
+        retryAnswered++;
+        updateProg(retryAnswered, retrySet.length);
+        if (retryAnswered === retrySet.length) finishRetry();
+      } else {
+        answered++;
+        updateProg(answered, TOTAL);
+        if (answered === TOTAL) finishMain();
+      }
+    });
+
+    optsWrap.appendChild(btn);
+  });
+
+  card.appendChild(optsWrap);
+
+  // result tag
+  const tag = document.createElement('div');
+  tag.className = 'q-result-tag';
+  card.appendChild(tag);
+
+  return card;
+}
+
+// ═══════════════════════════════════════
+// FINISH MAIN
+// ═══════════════════════════════════════
+function finishMain() {
+  const pct = Math.round((correctCount / TOTAL) * 100);
+  showResults(correctCount, TOTAL, pct, wrongIdxs, ALL_QS, false);
+}
+
+// ═══════════════════════════════════════
+// FINISH RETRY
+// ═══════════════════════════════════════
+function finishRetry() {
+  const pct = Math.round((retryCorrect / retrySet.length) * 100);
+
+  if (retryWrong.length === 0) {
+    // all correct on retry — only show "全部解き直す"
+    showResults(retryCorrect, retrySet.length, pct, [], retrySet, true);
+  } else {
+    showResults(retryCorrect, retrySet.length, pct,
+      retryWrong, retrySet, true);
+  }
+}
+
+// ═══════════════════════════════════════
+// SHOW RESULTS
+// ═══════════════════════════════════════
+function showResults(corr, tot, pct, badIdxs, qSource, isAfterRetry) {
+  // hide quiz / retry screens, show results
+  quizScreen.style.display = 'none';
+  retryScreen.style.display = 'none';
+  resultsScreen.innerHTML = '';
+  resultsScreen.classList.add('show');
+
+  // score card
+  let grade;
+  if (pct === 100) grade = '🎖 満点！完璧です！';
+  else if (pct >= 90) grade = '🎯 優秀！もう少しで満点！';
+  else if (pct >= 70) grade = '👍 合格圏！あと一息！';
+  else if (pct >= 50) grade = '📚 もう少し！復習あるのみ！';
+  else grade = '💪 基礎から見直そう！';
+
+  const scoreCard = document.createElement('div');
+  scoreCard.className = 'res-score-card';
+  scoreCard.innerHTML = `
+    <div class="res-score-label">${isAfterRetry ? '解き直し結果' : '最終スコア'}</div>
+    <div class="res-score-num">⭕ ${corr}<span class="res-score-denom"> / ${tot}</span></div>
+    <div class="res-pct">${pct}%</div>
+    <div class="res-grade">${grade}</div>
+  `;
+  resultsScreen.appendChild(scoreCard);
+
+  // wrong list
+  if (badIdxs.length > 0) {
+    const wTitle = document.createElement('div');
+    wTitle.className = 'wrong-section-title';
+    wTitle.textContent = `✕  間違えた問題　${badIdxs.length}問`;
+    resultsScreen.appendChild(wTitle);
+
+    badIdxs.forEach(idx => {
+      const q = qSource[idx];
+      const item = document.createElement('div');
+      item.className = 'wrong-item';
+
+      // strip <em> tags for display
+      const plainText = q.text.replace(/<em>(.*?)<\/em>/g, '$1');
+
+      item.innerHTML = `
+        <div class="wrong-item-head">${plainText}</div>
+        <div class="wrong-item-ans">${q.opts[q.ans]}</div>
+      `;
+      resultsScreen.appendChild(item);
+    });
+  }
+
+  // action buttons
+  const btns = document.createElement('div');
+  btns.className = 'action-btns';
+
+  if (badIdxs.length > 0) {
+    const retryWrongBtn = document.createElement('button');
+    retryWrongBtn.className = 'act-btn primary';
+    retryWrongBtn.textContent = `✕ 間違えた問題のみ解き直す（${badIdxs.length}問）`;
+    retryWrongBtn.addEventListener('click', () => {
+      retryRound++;
+      retrySet = badIdxs.map(i => qSource[i]);
+      resultsScreen.classList.remove('show');
+      resultsScreen.innerHTML = '';
+      retryScreen.style.display = 'block';
+      retryScreen.classList.add('show');
+      buildRetry(retrySet, retryRound);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+    btns.appendChild(retryWrongBtn);
+  }
+
+  const retryAllBtn = document.createElement('button');
+  retryAllBtn.className = 'act-btn secondary';
+  retryAllBtn.textContent = '↩ 全ての問題を解き直す';
+  retryAllBtn.addEventListener('click', () => {
+    retryRound = 0;
+    resultsScreen.classList.remove('show');
+    resultsScreen.innerHTML = '';
+    retryScreen.style.display = 'none';
+    quizScreen.style.display = 'block';
+    buildMain();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+  btns.appendChild(retryAllBtn);
+
+  resultsScreen.appendChild(btns);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ═══════════════════════════════════════
+// PROGRESS
+// ═══════════════════════════════════════
+function updateProg(done, total) {
+  progText.textContent = `${done} / ${total}`;
+  progBar.style.width = `${(done / total) * 100}%`;
+}
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+buildMain();
+</script>
+</body>
+</html>
