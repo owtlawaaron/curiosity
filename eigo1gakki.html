@@ -14,6 +14,10 @@
   --border: #D8D2C8;
   --line: #EDE8E0;
   --gold: #F4C842;
+  --green: #27724A;
+  --green-bg: #E8F5ED;
+  --red: #C0392B;
+  --red-bg: #FDECEA;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
@@ -50,16 +54,19 @@ body {
 .toc-line { flex: 1; height: 1px; background: var(--blue); opacity: 0.25; }
 .cards { display: flex; flex-direction: column; gap: 14px; margin: 0 16px; }
 .test-card {
-  display: flex; align-items: center; gap: 14px;
   background: var(--card);
   border: 1.5px solid var(--border);
   border-radius: 6px;
-  padding: 18px 18px;
-  text-decoration: none; color: inherit;
-  transition: border-color 0.2s, box-shadow 0.2s, transform 0.1s;
+  overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 .test-card:hover { border-color: var(--blue); box-shadow: 0 4px 14px rgba(44,74,124,0.12); }
-.test-card:active { transform: scale(0.99); }
+.card-main {
+  display: flex; align-items: center; gap: 14px;
+  padding: 18px 18px;
+  text-decoration: none; color: inherit;
+}
+.card-main:active { background: #F6F3EE; }
 .card-num {
   flex-shrink: 0;
   width: 52px; height: 52px;
@@ -74,6 +81,45 @@ body {
 .card-meta { font-size: 12px; color: var(--faint); }
 .card-meta b { color: var(--blue); font-weight: 700; }
 .card-arrow { flex-shrink: 0; font-size: 20px; color: var(--blue); opacity: 0.5; }
+
+/* ── 学習記録 ── */
+.card-record {
+  border-top: 1px dashed var(--border);
+  padding: 12px 18px 14px;
+  background: #FBFAF7;
+}
+.rec-empty { font-size: 11.5px; color: var(--faint); }
+.rec-head {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
+  margin-bottom: 9px;
+}
+.rec-title { font-size: 11px; font-weight: 700; color: var(--blue); letter-spacing: 0.04em; }
+.rec-best {
+  font-size: 11px; font-weight: 700;
+  background: var(--gold); color: #5b4500;
+  padding: 1px 8px; border-radius: 10px;
+}
+.rec-growth { font-size: 11px; font-weight: 700; padding: 1px 8px; border-radius: 10px; }
+.rec-growth.up { background: var(--green-bg); color: var(--green); }
+.rec-growth.down { background: var(--red-bg); color: var(--red); }
+.rec-growth.flat { background: #EEE; color: var(--faint); }
+.rec-reset {
+  margin-left: auto;
+  border: 1px solid var(--border); background: #fff;
+  color: var(--faint); font-family: inherit;
+  font-size: 10.5px; padding: 2px 9px; border-radius: 10px;
+  cursor: pointer;
+}
+.rec-reset:hover { color: var(--red); border-color: var(--red); }
+.rec-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.rec-chip {
+  font-size: 11.5px; color: var(--ink);
+  background: #fff; border: 1px solid var(--border);
+  padding: 3px 9px; border-radius: 4px; white-space: nowrap;
+}
+.rec-chip b { color: var(--blue); font-weight: 700; }
+.rec-chip.is-best { border-color: var(--green); background: var(--green-bg); }
+.rec-chip.is-best b { color: var(--green); }
 .foot {
   margin: 28px 16px 0;
   font-size: 11px; color: var(--faint); line-height: 1.7;
@@ -87,35 +133,104 @@ body {
   <span class="header-title">英語1学期 復習テスト</span>
 </div>
 
-<p class="intro">受けたいテストを選んでください。</p>
+<p class="intro">受けたいテストを選んでください。テストを受けるたびに正答率が記録され、成長が確認できます。</p>
 <div class="toc-title">
   <div class="toc-tag">目次</div>
   <div class="toc-line"></div>
 </div>
 
 <div class="cards">
-  <a class="test-card" href="eigo1gakki3.html">
-    <div class="card-num">3</div>
-    <div class="card-body">
-      <div class="card-name">英語1学期-3 復習テスト</div>
-      <div class="card-meta">時制・不定詞・動名詞・受動態・関係詞ほか　<b>全62問</b></div>
-    </div>
-    <div class="card-arrow">›</div>
-  </a>
+  <div class="test-card">
+    <a class="card-main" href="eigo1gakki3.html">
+      <div class="card-num">3</div>
+      <div class="card-body">
+        <div class="card-name">英語1学期-3 復習テスト</div>
+        <div class="card-meta">時制・不定詞・動名詞・受動態・関係詞ほか　<b>全62問</b></div>
+      </div>
+      <div class="card-arrow">›</div>
+    </a>
+    <div class="card-record" id="rec-eigo1gakki3"></div>
+  </div>
 
-  <a class="test-card" href="eigo1gakki4.html">
-    <div class="card-num">4</div>
-    <div class="card-body">
-      <div class="card-name">英語1学期-4 復習テスト</div>
-      <div class="card-meta">接続詞・代名詞・受動態・前置詞・関係代名詞ほか　<b>全74問</b></div>
-    </div>
-    <div class="card-arrow">›</div>
-  </a>
+  <div class="test-card">
+    <a class="card-main" href="eigo1gakki4.html">
+      <div class="card-num">4</div>
+      <div class="card-body">
+        <div class="card-name">英語1学期-4 復習テスト</div>
+        <div class="card-meta">接続詞・代名詞・受動態・前置詞・関係代名詞ほか　<b>全74問</b></div>
+      </div>
+      <div class="card-arrow">›</div>
+    </a>
+    <div class="card-record" id="rec-eigo1gakki4"></div>
+  </div>
 </div>
 
 <p class="foot">
   各テストは選択式で、解答するとその場で正誤判定されます。<br>
-  最後に得点と間違えた問題が表示され、間違えた問題だけを解き直すこともできます。
+  最後に得点と間違えた問題が表示され、間違えた問題だけを解き直すこともできます。<br>
+  ※ 学習記録はこの端末・このブラウザにのみ保存されます。
 </p>
+
+<script>
+function loadResults(testId) {
+  try {
+    return JSON.parse(localStorage.getItem('eigoQuizResults_' + testId) || '[]');
+  } catch (e) { return []; }
+}
+
+function renderRecords(testId) {
+  const el = document.getElementById('rec-' + testId);
+  const arr = loadResults(testId);
+
+  if (!arr.length) {
+    el.innerHTML = '<span class="rec-empty">📈 まだ記録がありません。テストを最後まで解くと正答率が記録されます。</span>';
+    return;
+  }
+
+  const best  = Math.max.apply(null, arr.map(function(a){ return a.pct; }));
+  const first = arr[0].pct;
+  const last  = arr[arr.length - 1].pct;
+  const diff  = last - first;
+
+  const chips = arr.map(function(a, i) {
+    const isBest = a.pct === best;
+    return '<span class="rec-chip' + (isBest ? ' is-best' : '') + '">' +
+           (i + 1) + '回目 <b>' + a.pct + '%</b></span>';
+  }).join('');
+
+  let growth = '';
+  if (arr.length > 1) {
+    const cls = diff > 0 ? 'up' : (diff < 0 ? 'down' : 'flat');
+    const sym = diff > 0 ? '▲ +' : (diff < 0 ? '▼ ' : '→ ');
+    growth = '<span class="rec-growth ' + cls + '">成長 ' + sym + diff + '%</span>';
+  }
+
+  el.innerHTML =
+    '<div class="rec-head">' +
+      '<span class="rec-title">📈 学習記録（' + arr.length + '回）</span>' +
+      '<span class="rec-best">最高 ' + best + '%</span>' +
+      growth +
+      '<button class="rec-reset" data-test="' + testId + '">記録をリセット</button>' +
+    '</div>' +
+    '<div class="rec-chips">' + chips + '</div>';
+}
+
+function renderAll() {
+  renderRecords('eigo1gakki3');
+  renderRecords('eigo1gakki4');
+}
+
+document.addEventListener('click', function(e) {
+  const btn = e.target.closest('.rec-reset');
+  if (!btn) return;
+  const testId = btn.getAttribute('data-test');
+  if (confirm('このテストの学習記録をすべて削除します。よろしいですか？')) {
+    localStorage.removeItem('eigoQuizResults_' + testId);
+    renderRecords(testId);
+  }
+});
+
+renderAll();
+</script>
 </body>
 </html>
