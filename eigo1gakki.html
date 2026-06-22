@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>英語1学期 復習テスト 目次</title>
+<style>
+:root {
+  --bg: #F2EFE8;
+  --card: #FFFFFF;
+  --ink: #1C1C1C;
+  --faint: #9A9690;
+  --blue: #2C4A7C;
+  --border: #D8D2C8;
+  --line: #EDE8E0;
+  --gold: #F4C842;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  background-image: linear-gradient(var(--line) 1px, transparent 1px);
+  background-size: 100% 28px;
+  font-family: 'Hiragino Kaku Gothic ProN','Hiragino Sans','Yu Gothic','Meiryo',sans-serif;
+  color: var(--ink);
+  min-height: 100vh;
+  padding-bottom: 60px;
+}
+.header {
+  background: var(--blue); color: #fff;
+  padding: 16px 20px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+.header-eyebrow { font-size: 10px; opacity: 0.6; letter-spacing: 0.1em; display: block; margin-bottom: 3px; }
+.header-title { font-size: 18px; font-weight: 700; }
+.intro {
+  margin: 22px 16px 6px;
+  font-size: 12px; color: var(--faint); letter-spacing: 0.04em;
+}
+.toc-title {
+  display: flex; align-items: center; gap: 10px;
+  margin: 10px 16px 16px;
+}
+.toc-tag {
+  background: var(--blue); color: #fff;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+  padding: 3px 14px 3px 10px;
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 50%, calc(100% - 8px) 100%, 0 100%);
+  white-space: nowrap;
+}
+.toc-line { flex: 1; height: 1px; background: var(--blue); opacity: 0.25; }
+.cards { display: flex; flex-direction: column; gap: 14px; margin: 0 16px; }
+.test-card {
+  display: flex; align-items: center; gap: 14px;
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  padding: 18px 18px;
+  text-decoration: none; color: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.1s;
+}
+.test-card:hover { border-color: var(--blue); box-shadow: 0 4px 14px rgba(44,74,124,0.12); }
+.test-card:active { transform: scale(0.99); }
+.card-num {
+  flex-shrink: 0;
+  width: 52px; height: 52px;
+  background: var(--blue); color: #fff;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: Georgia, serif; font-weight: 700; font-size: 22px;
+  letter-spacing: -1px;
+}
+.card-body { flex: 1; }
+.card-name { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+.card-meta { font-size: 12px; color: var(--faint); }
+.card-meta b { color: var(--blue); font-weight: 700; }
+.card-arrow { flex-shrink: 0; font-size: 20px; color: var(--blue); opacity: 0.5; }
+.foot {
+  margin: 28px 16px 0;
+  font-size: 11px; color: var(--faint); line-height: 1.7;
+  border-top: 1px solid var(--border); padding-top: 14px;
+}
+</style>
+</head>
+<body>
+<div class="header">
+  <span class="header-eyebrow">高３ スタンダードレベル英語 ～文法編～</span>
+  <span class="header-title">英語1学期 復習テスト</span>
+</div>
+
+<p class="intro">受けたいテストを選んでください。</p>
+<div class="toc-title">
+  <div class="toc-tag">目次</div>
+  <div class="toc-line"></div>
+</div>
+
+<div class="cards">
+  <a class="test-card" href="eigo1gakki3.html">
+    <div class="card-num">3</div>
+    <div class="card-body">
+      <div class="card-name">英語1学期-3 復習テスト</div>
+      <div class="card-meta">時制・不定詞・動名詞・受動態・関係詞ほか　<b>全62問</b></div>
+    </div>
+    <div class="card-arrow">›</div>
+  </a>
+
+  <a class="test-card" href="eigo1gakki4.html">
+    <div class="card-num">4</div>
+    <div class="card-body">
+      <div class="card-name">英語1学期-4 復習テスト</div>
+      <div class="card-meta">接続詞・代名詞・受動態・前置詞・関係代名詞ほか　<b>全74問</b></div>
+    </div>
+    <div class="card-arrow">›</div>
+  </a>
+</div>
+
+<p class="foot">
+  各テストは選択式で、解答するとその場で正誤判定されます。<br>
+  最後に得点と間違えた問題が表示され、間違えた問題だけを解き直すこともできます。
+</p>
+</body>
+</html>

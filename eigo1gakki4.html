@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>英語1学期-4 復習テスト</title>
+<style>
+:root {
+  --bg: #F2EFE8;
+  --card: #FFFFFF;
+  --ink: #1C1C1C;
+  --faint: #9A9690;
+  --red: #C0392B;
+  --red-bg: #FDECEA;
+  --red-border: #E8A09A;
+  --blue: #2C4A7C;
+  --green: #27724A;
+  --green-bg: #E8F5ED;
+  --green-border: #7DC49A;
+  --border: #D8D2C8;
+  --line: #EDE8E0;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  background-image: linear-gradient(var(--line) 1px, transparent 1px);
+  background-size: 100% 28px;
+  font-family: 'Hiragino Kaku Gothic ProN','Hiragino Sans','Yu Gothic','Meiryo',sans-serif;
+  color: var(--ink);
+  min-height: 100vh;
+  padding-bottom: 80px;
+}
+.header {
+  background: var(--blue); color: #fff;
+  padding: 14px 20px; position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+.header-left { display: flex; flex-direction: column; gap: 2px; }
+.header-eyebrow { font-size: 10px; opacity: 0.6; letter-spacing: 0.1em; }
+.header-title { font-size: 16px; font-weight: 700; }
+.prog-wrap { text-align: right; }
+.prog-text { font-size: 11px; opacity: 0.65; margin-bottom: 5px; }
+.prog-outer { width: 90px; height: 6px; background: rgba(255,255,255,0.2); border-radius: 3px; overflow: hidden; }
+.prog-inner { height: 100%; background: #F4C842; border-radius: 3px; transition: width 0.35s ease; width: 0%; }
+.sec-tab { display: flex; align-items: center; gap: 10px; margin: 26px 14px 8px; }
+.sec-tag {
+  background: var(--blue); color: #fff;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+  padding: 3px 14px 3px 10px;
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 50%, calc(100% - 8px) 100%, 0 100%);
+  white-space: nowrap;
+}
+.sec-line { flex: 1; height: 1px; background: var(--blue); opacity: 0.25; }
+.sec-sub { font-size: 11px; color: var(--faint); white-space: nowrap; }
+.instr {
+  margin: 4px 14px 10px;
+  font-size: 13px; font-weight: 600; color: var(--ink);
+  background: #EEF2FA; border-left: 3px solid var(--blue);
+  padding: 7px 10px; border-radius: 0 3px 3px 0; line-height: 1.6;
+}
+.q-card {
+  background: var(--card); margin: 0 14px 10px;
+  border-radius: 4px; border: 1.5px solid var(--border);
+  overflow: hidden; transition: border-color 0.2s, box-shadow 0.2s;
+}
+.q-card.is-correct { border-color: var(--green-border); }
+.q-card.is-wrong   { border-color: var(--red-border); }
+.q-head { display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px 10px; border-bottom: 1px solid var(--line); }
+.q-badge { font-family: Georgia, serif; font-style: italic; font-size: 12px; color: var(--faint); min-width: 26px; padding-top: 2px; user-select: none; }
+.q-text { font-size: 14px; line-height: 1.7; flex: 1; word-break: break-word; white-space: pre-wrap; }
+.q-text em { font-style: normal; text-decoration: underline; text-decoration-color: var(--red); text-underline-offset: 3px; }
+.q-opts { padding: 5px 0; }
+.opt {
+  display: flex; align-items: flex-start; gap: 10px;
+  width: 100%; border: none; background: none;
+  padding: 9px 14px; cursor: pointer; text-align: left;
+  font-family: inherit; font-size: 13.5px; color: var(--ink);
+  line-height: 1.5; transition: background 0.1s; position: relative;
+}
+.opt:not(:last-child) { border-bottom: 1px solid var(--line); }
+.opt:hover:not(:disabled) { background: #F6F3EE; }
+.opt:disabled { cursor: default; }
+.opt-n { font-family: 'Courier New', monospace; font-size: 12px; font-weight: 700; color: var(--faint); min-width: 18px; padding-top: 2px; user-select: none; flex-shrink: 0; }
+.opt-t { flex: 1; }
+.opt.chosen-correct { background: var(--green-bg) !important; }
+.opt.chosen-correct .opt-n { color: var(--green); font-weight: 900; }
+.opt.chosen-correct .opt-t { color: var(--green); font-weight: 700; }
+.opt.chosen-wrong { background: var(--red-bg) !important; }
+.opt.chosen-wrong .opt-n { color: var(--red); }
+.opt.chosen-wrong .opt-t { color: var(--red); text-decoration: line-through; text-decoration-color: var(--red); }
+.opt.reveal { background: var(--green-bg) !important; }
+.opt.reveal .opt-n { color: var(--green); font-weight: 900; }
+.opt.reveal .opt-t { color: var(--green); font-weight: 700; }
+.opt.chosen-correct::after, .opt.reveal::after, .opt.chosen-wrong::after {
+  position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 16px;
+}
+.opt.chosen-correct::after { content: '✓'; color: var(--green); }
+.opt.reveal::after          { content: '✓'; color: var(--green); }
+.opt.chosen-wrong::after    { content: '✗'; color: var(--red); }
+.q-result-tag { display: none; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; padding: 5px 14px; }
+.q-result-tag.show { display: block; }
+.q-result-tag.ok { background: var(--green-bg); color: var(--green); border-top: 1px solid var(--green-border); }
+.q-result-tag.ng { background: var(--red-bg); color: var(--red); border-top: 1px solid var(--red-border); }
+#results-screen { display: none; padding: 0 14px 60px; }
+#results-screen.show { display: block; }
+.res-score-card {
+  background: var(--blue); color: #fff; border-radius: 6px;
+  padding: 28px 20px 24px; text-align: center; margin-bottom: 20px; margin-top: 24px;
+}
+.res-score-label { font-size: 11px; letter-spacing: 0.14em; opacity: 0.6; margin-bottom: 6px; }
+.res-score-num { font-family: Georgia, serif; font-size: 58px; font-weight: 700; line-height: 1; letter-spacing: -2px; }
+.res-score-denom { font-size: 22px; opacity: 0.55; }
+.res-pct { font-size: 20px; font-weight: 700; margin-top: 6px; opacity: 0.85; }
+.res-grade { margin-top: 14px; font-size: 20px; font-weight: 700; letter-spacing: 0.04em; }
+.wrong-section-title { font-size: 13px; font-weight: 700; color: var(--red); border-left: 3px solid var(--red); padding: 2px 0 2px 10px; margin-bottom: 10px; }
+.wrong-item { background: var(--card); border: 1.5px solid var(--red-border); border-radius: 4px; margin-bottom: 8px; overflow: hidden; }
+.wrong-item-head { background: var(--red-bg); padding: 8px 12px; font-size: 12.5px; line-height: 1.6; color: var(--ink); white-space: pre-wrap; word-break: break-word; }
+.wrong-item-ans { padding: 6px 12px; font-size: 12.5px; font-weight: 700; color: var(--green); display: flex; align-items: center; gap: 6px; }
+.wrong-item-ans::before { content: '正解'; font-size: 10px; font-weight: 700; background: var(--green); color: #fff; padding: 1px 6px; border-radius: 2px; letter-spacing: 0.05em; white-space: nowrap; }
+.action-btns { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+.act-btn { border: none; border-radius: 4px; font-family: inherit; font-size: 14px; font-weight: 700; letter-spacing: 0.05em; padding: 14px 20px; cursor: pointer; transition: opacity 0.15s, transform 0.1s; }
+.act-btn:hover { opacity: 0.88; }
+.act-btn:active { transform: scale(0.98); }
+.act-btn.primary { background: var(--red); color: #fff; }
+.act-btn.secondary { background: var(--blue); color: #fff; }
+#retry-screen { display: none; padding-bottom: 60px; }
+#retry-screen.show { display: block; }
+.retry-header { background: var(--red); color: #fff; padding: 12px 20px; font-size: 13px; font-weight: 700; letter-spacing: 0.06em; display: flex; align-items: center; justify-content: space-between; }
+.retry-round { font-size: 11px; opacity: 0.75; font-weight: 400; }
+@media (max-width: 480px) { .q-text { font-size: 13.5px; } .opt { font-size: 13px; } }
+</style>
+</head>
+<body>
+<div class="header" id="main-header">
+  <div class="header-left">
+    <span class="header-eyebrow">高３ スタンダードレベル英語 ～文法編～</span>
+    <span class="header-title">英語1学期-4 復習テスト</span>
+  </div>
+  <div class="prog-wrap">
+    <div class="prog-text" id="prog-text">0 / 74</div>
+    <div class="prog-outer"><div class="prog-inner" id="prog-bar"></div></div>
+  </div>
+</div>
+<div id="quiz-screen"></div>
+<div id="results-screen"></div>
+<div id="retry-screen"></div>
+<script>
+const SECTIONS = [
+  {
+    label:"第9講 接続詞（その1）", sub:"確認テスト",
+    blocks:[
+      {
+        instr:"【1】次の日本語を表す英文として正しいものを選びなさい。",
+        qs:[
+          {
+            text:"(1) 彼は若かったとき，沖縄に住んでいた。",
+            opts:[
+              "He was young when he lived in Okinawa.",
+              "When he was young, he lived in Okinawa."
+            ],
+            ans:1
+          }
+        ]
+      },
+      {
+        instr:"【2】",
+        qs:[
+          {
+            text:"(1) Either he or she (　) French.",
+            opts:["speak","speaks"],
+            ans:1
+          },
+          {
+            text:"(2) Hurry up, (　) you'll miss the train.",
+            opts:["or","and","then","so"],
+            ans:0
+          },
+          {
+            text:"(3) I know Kenta and I know his brother, too.\n＝ I know (　) Kenta (　) his brother.",
+            opts:["both / and","either / or","neither / nor"],
+            ans:0
+          },
+          {
+            text:"(4) He has lived in Japan for some time, but he cannot speak Japanese.\n＝ (　) he has lived in Japan for some time, he cannot speak Japanese.",
+            opts:["If","Because","Although","But"],
+            ans:2
+          },
+          {
+            text:"(5) Be careful (　) you use this machine.",
+            opts:["for","when","but","during"],
+            ans:1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    label:"第10講 接続詞（その2）", sub:"確認テスト",
+    blocks:[
+      {
+        instr:"【1】次の日本語を表す英文として正しい（英語として自然な）ものを選びなさい。",
+        qs:[
+          {
+            text:"(1) 彼は正しくないと思います。",
+            opts:[
+              "I think that he is not right.",
+              "I don't think that he is right",
+              "I don't think that he is not right."
+            ],
+            ans:1
+          },
+          {
+            text:"(2) 彼女は悲しんでいると思った。",
+            opts:[
+              "I thought that she is sad.",
+              "I thought that she was sad.",
+              "I thought that she being sad."
+            ],
+            ans:1
+          }
+        ]
+      },
+      {
+        instr:"【2】",
+        qs:[
+          {
+            text:"(1) We hoped that the train (　) on time.",
+            opts:["will be","would be","be","would"],
+            ans:1
+          },
+          {
+            text:"(2) 日本語に合う英文にならべかえるとき，[　]内で5番目にくる語を選びなさい。\nあなたは，彼があす教会に来ると思いますか？\nDo [ come / you / will / think / to / he ] church tomorrow?",
+            opts:["you","think","to","come"],
+            ans:3
+          }
+        ]
+      }
+    ]
+  },
+  {
+    label:"第11講 接続詞（その3）", sub:"確認テスト",
+    blocks:[
+      {
+        instr:"【1】次の日本語を表す英文として正しいものを選びなさい。",
+        qs:[
+          {
+            text:"(1) 宿題が終わったら君に電話するよ。",
+            opts:[
+              "When I will finish my homework, I will call you.",
+              "When I finish my homework, I will call you.",
+              "When I will finish my homework, I call you."
+            ],
+            ans:1
+          }
+        ]
+      },
+      {
+        instr:"【2】",
+        qs:[
+          {
+            text:"(1) Let's go hiking if it (　) sunny tomorrow.",
+            opts:["has","have","is","will be"],
+            ans:2
+          },
+          {
+            text:"(2) I will ask her as soon as I (　) her.",
+            opts:["see","saw","will see","have to see"],
+            ans:0
+          },
+          {
+            text:"(3) Give me a call when you (　) at the station.",
+            opts:["arrive","arrived","will arrive","arriving"],
+            ans:0
+          },
+          {
+            text:"(4) 次の文において，間違っている箇所を1つ選び，その間違いを正しく直しなさい。\nI <em>①call</em> you <em>②up</em> as <em>③soon</em> as I <em>④arrive</em> in New York next week.",
+            opts:["①call → will call","②up（正しい）","③soon（正しい）","④arrive（正しい）"],
+            ans:0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    label:"第13講 代名詞", sub:"確認テスト",
+    blocks:[
+      {
+        instr:"【1】",
+        qs:[
+          {
+            text:"(1) I have lost my purse, so I must buy (　).",
+            opts:["it","one","the one","the other"],
+            ans:1
+          },
+          {
+            text:"(2) She gave me a lovely watch, but I lost (　).",
+            opts:["one","it","the one","this"],
+            ans:1
+          },
+          {
+            text:"(3) I have two little pigs. One is pink and (　) is black and white.",
+            opts:["the others","the other","other","another"],
+            ans:1
+          },
+          {
+            text:"(4) このドレスは好きではありません。別のものを見せてください。\nI don't like this dress. Show me (　).",
+            opts:["others","other","one another","another"],
+            ans:3
+          }
+        ]
+      }
+    ]
+  },
+  {
+    label:"第23講 受動態", sub:"確認テスト",
+    blocks:[
+      {
+        instr:"【1】次の日本語を表す英文として正しいものを選びなさい。",
+        qs:[
+          {
+            text:"(1) その俳優は，多くの若者に好かれている。",
+            opts:[
+              "The actor liked by a lot of young people.",
+              "The actor is liked a lot of young people.",
+              "The actor is liked by a lot of young people."
+            ],
+            ans:2
+          }
+        ]
+      },
+      {
+        instr:"【2】",
+        qs:[
+          {
+            text:"(1) This letter was (　) by a famous actor.",
+            opts:["writing","write","wrote","written"],
+            ans:3
+          },
+          {
+            text:"(2) Was this picture (　) by your friend?",
+            opts:["taken","took","taking","takes"],
+            ans:0
+          }
+        ]
+      },
+      {
+        instr:"【3】日本語に合う英文にならべかえるとき，[　]内で3番目にくる語を選びなさい。",
+        qs:[
+          {
+            text:"(1) オーストラリアでは英語が話されています。\n[ English / in / spoken / is ] Australia.",
+            opts:["English","in","spoken","is"],
+            ans:2
+          },
+          {
+            text:"(2) 昨日，彼の自転車が盗まれました。\nYesterday [ was / bicycle / stolen / his ].",
+            opts:["was","bicycle","stolen","his"],
+            ans:0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    label:"第2講 前置詞（その1）", sub:"確認テスト",
+    blocks:[
+      {
+        instr:"【1】",
+        qs:[
+          {
+            text:"(1) I have a present (　) you.",
+            opts:["at","by","for","from"],
+            ans:2
+          },
+          {
+            text:"(2) I went there (　) a car.",
+            opts:["by","from","in","at"],
+            ans:2
+          },
+          {
+            text:"(3) School begins (　) 8:40.",
+            opts:["in","for","by","at"],
+            ans:3
+          },
+          {
+            text:"(4) The grasshopper died (　) hunger.",
+            opts:["from","at","by","for"],
+            ans:0
+          }
+        ]
+      },
+      {
+        instr:"【2】",
+        qs:[
+          {
+            text:"(1) We went to the lake (　) car.",
+            opts:["on","by","at","with"],
+            ans:1
+          },
+          {
+            text:"(2) Thank you (　) your letter.",
+            opts:["of","in","for","under"],
+            ans:2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    label:"第3講 前置詞（その2）", sub:"確認テスト",
+    blocks:[
+      {
+        instr:"【1】",
+        qs:[
+          {
+            text:"(1) There is a spider (　) the ceiling.",
+            opts:["on","with","to","of"],
+            ans:0
+          },
+          {
+            text:"(2) Please speak (　) English.",
+            opts:["of","with","on","in"],
+            ans:3
+          },
+          {
+            text:"(3) Her jacket is made (　) leather.",
+            opts:["in","of","from","to"],
+            ans:1
+          },
+          {
+            text:"(4) It is five minutes (　) six now.",
+            opts:["to","in","with","on"],
+            ans:0
+          },
+          {
+            text:"(5) Don't speak (　) your mouth full.",
+            opts:["with","on","of","in"],
+            ans:0
+          }
+        ]
+      },
+      {
+        instr:"【2】",
+        qs:[
+          {
+            text:"(1) School starts (　) April in Japan.",
+            opts:["at","in","of","on"],
+            ans:1
+          },
+          {
+            text:"(2) Both the sun and the moon rise (　) the east.",
+            opts:["from","at","in","on"],
+            ans:2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    label:"第5講 前置詞（その1）", sub:"確認テスト",
+    blocks:[
+      {
+        instr:"【1】",
+        qs:[
+          {
+            text:"(1) This picture was (　) by Tom.",
+            opts:["taking","took","taken","taked"],
+            ans:2
+          },
+          {
+            text:"(2) Was this picture (　) by your friend?",
+            opts:["taken","took","taking","takes"],
+            ans:0
+          },
+          {
+            text:"(3) Is French spoken in Canada?\n＝ (　) people (　) French in Canada?",
+            opts:["Is / speak","Is / spoken","Do / speak","Do / spoken"],
+            ans:2
+          },
+          {
+            text:"(4) English (　) in Australia.",
+            opts:["speaks","is speak","is spoken","spoken"],
+            ans:2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    label:"第6講 前置詞（その2）", sub:"確認テスト",
+    blocks:[
+      {
+        instr:"【1】",
+        qs:[
+          {
+            text:"(1) He was pleased (　) the gift.",
+            opts:["with","in","into","to"],
+            ans:0
+          },
+          {
+            text:"(2) Cheese is made (　) milk.",
+            opts:["of","by","from","in"],
+            ans:2
+          },
+          {
+            text:"(3) She is known (　) everyone.",
+            opts:["in","to","of","into"],
+            ans:1
+          }
+        ]
+      },
+      {
+        instr:"【2】",
+        qs:[
+          {
+            text:"(1) My brother will repair my bike.\n＝ My bike will (　) by my brother.",
+            opts:["be repair","be repaired","repair","repaired"],
+            ans:1
+          },
+          {
+            text:"(2) 日本語に合う英文にならべかえるとき，[　]内で5番目にくる語を選びなさい。\n誕生日には私はこの腕時計を父からもらった。\nOn my birthday, [ by / given / this / was / I / watch / my ] father.",
+            opts:["this","was","I","watch"],
+            ans:3
+          },
+          {
+            text:"(3) I was (　) by a foreigner on the platform of the station.",
+            opts:["spoken","spoken to","speak","speak to"],
+            ans:1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    label:"第10講 接続詞総確認", sub:"確認テスト",
+    blocks:[
+      {
+        instr:"【1】次の日本語を表す英文として正しいものを選びなさい。",
+        qs:[
+          {
+            text:"(1) 仕事が終わったら君に電話するよ。",
+            opts:[
+              "When I will finish my work, I will call you.",
+              "When I finish my work, I will call you.",
+              "When I will finish my work, I call you."
+            ],
+            ans:1
+          }
+        ]
+      },
+      {
+        instr:"【2】",
+        qs:[
+          {
+            text:"(1) If you don't walk faster, you won't catch the bus.\n＝ Walk faster, (　) you will (　) the bus.",
+            opts:["and / miss","or / catch","or / miss"],
+            ans:2
+          },
+          {
+            text:"(2) 彼か，彼女のどちらかがフランス語を話します。\nEither he or she (　) French.",
+            opts:["speak","speaks","spoke"],
+            ans:1
+          },
+          {
+            text:"(3) Be careful (　) you use this machine.",
+            opts:["for","when","but","during"],
+            ans:1
+          },
+          {
+            text:"(4) Let's go on a picnic if it (　) fine tomorrow.",
+            opts:["is","will be","was","has been"],
+            ans:0
+          },
+          {
+            text:"(5) 次の文において，間違っている箇所を1つ選び，その間違いを正しく直しなさい。\nI <em>①call</em> you <em>②up</em> as <em>③soon</em> as I <em>④arrive</em> in New York next week.",
+            opts:["①call → will call","②up（正しい）","③soon（正しい）","④arrive（正しい）"],
+            ans:0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    label:"第18講 関係代名詞（その1）", sub:"確認テスト",
+    blocks:[
+      {
+        instr:"【1】",
+        qs:[
+          {
+            text:"(1) Do you know the boy (　) is standing under the tree?",
+            opts:["what","which","whose","who"],
+            ans:3
+          },
+          {
+            text:"(2) This is a picture (　) was painted by a famous artist.",
+            opts:["who","whose","which","what"],
+            ans:2
+          },
+          {
+            text:"(3) I have a friend with blue eyes.\n＝ I have a friend (　) blue eyes.",
+            opts:["who with","who has","who have","without"],
+            ans:1
+          }
+        ]
+      },
+      {
+        instr:"【2】日本語に合う英文にならべかえるとき，[　]内で5番目にくる語を選びなさい。",
+        qs:[
+          {
+            text:"(1) あれは昨日開店したお店です。\n[ a store / yesterday / which / that / opened / is ].",
+            opts:["opened","a store","is","which"],
+            ans:0
+          },
+          {
+            text:"(2) 私の隣に座っていた女性は，とても幸せそうだった。\n[ looked / me / the lady / next to / very happy / was / sitting / who ].",
+            opts:["who","very happy","next to","looked"],
+            ans:2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    label:"第19講 関係代名詞（その2）", sub:"確認テスト",
+    blocks:[
+      {
+        instr:"【1】",
+        qs:[
+          {
+            text:"(1) This is the place (　) I wanted to visit.",
+            opts:["who","which","what","where"],
+            ans:1
+          },
+          {
+            text:"(2) The house (　) he lives in is very old.",
+            opts:["what","who","which","where"],
+            ans:2
+          },
+          {
+            text:"(3) The old man (　) yesterday was my best friend's grandfather.",
+            opts:["I saw him","I saw who","who saw I","I saw"],
+            ans:3
+          }
+        ]
+      },
+      {
+        instr:"【2】日本語に合う英文にならべかえるとき，[　]内で5番目にくる語を選びなさい。",
+        qs:[
+          {
+            text:"(1) 先週私が読んだ話はこの話より長いよ。\n[ the story / is / I / longer / read / which / last week ] than this one.",
+            opts:["last week","which","longer","I"],
+            ans:0
+          },
+          {
+            text:"(2) 私が必要としている本が図書館にありません。\nThe [ library / need / in / I / not / book / is / the ].",
+            opts:["need","is","in","not"],
+            ans:3
+          },
+          {
+            text:"(3) 昨日，君が見かけた女性は私の妻です。\n[ you / is / the / yesterday / saw / woman ] my wife.",
+            opts:["woman","yesterday","saw","you"],
+            ans:1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    label:"第20講 関係代名詞（その3）", sub:"確認テスト",
+    blocks:[
+      {
+        instr:"【1】",
+        qs:[
+          {
+            text:"(1) Do you know the boy (　) father is a doctor?",
+            opts:["who","that","whose","his"],
+            ans:2
+          },
+          {
+            text:"(2) I saw a house (　) roof was red.",
+            opts:["that","which","whose","what"],
+            ans:2
+          },
+          {
+            text:"(3) Look at the boy and the dog (　) are playing over there.",
+            opts:["whose","who","which","that"],
+            ans:3
+          }
+        ]
+      },
+      {
+        instr:"【2】日本語に合う英文にならべかえるとき，[　]内で5番目にくる語を選びなさい。",
+        qs:[
+          {
+            text:"(1) 私が意味を知らない単語がたくさんあります。\nThere are [ whose / many / know / words / I / meanings / don't ].",
+            opts:["don't","meanings","know","I"],
+            ans:3
+          },
+          {
+            text:"(2) 通りを横切っている女の子と犬を見てごらん。\nLook at the girl [ that / are / dog / and / her / street / crossing / the ].",
+            opts:["are","that","dog","and"],
+            ans:0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    label:"第21講 関係代名詞（その4）", sub:"確認テスト",
+    blocks:[
+      {
+        instr:"【1】",
+        qs:[
+          {
+            text:"(1) They live in a house (　) roof is green.",
+            opts:["which","that","whom","whose"],
+            ans:3
+          },
+          {
+            text:"(2) This is the park (　) I wanted to visit.",
+            opts:["who","which","what","where"],
+            ans:1
+          },
+          {
+            text:"(3) I have a cousin (　) lives in New York.",
+            opts:["who","which","whose","whom"],
+            ans:0
+          },
+          {
+            text:"(4) Do you know the man (　) is talking with Lisa?",
+            opts:["which","who","whom","whose"],
+            ans:1
+          },
+          {
+            text:"(5) The CD (　) is not in the store.",
+            opts:["that I need it","which I need it","I need it","I need"],
+            ans:3
+          }
+        ]
+      }
+    ]
+  }
+];
+
+// Flatten
+const ALL_QS = [];
+SECTIONS.forEach(sec => {
+  sec.blocks.forEach(block => {
+    block.qs.forEach(q => {
+      ALL_QS.push({ ...q, _instr: block.instr, _label: sec.label });
+    });
+  });
+});
+const TOTAL = ALL_QS.length;
+
+let answered = 0, correctCount = 0, wrongIdxs = [];
+let retrySet = [], retryAnswered = 0, retryCorrect = 0, retryWrong = [], retryRound = 0;
+
+const quizScreen    = document.getElementById('quiz-screen');
+const resultsScreen = document.getElementById('results-screen');
+const retryScreen   = document.getElementById('retry-screen');
+const progText      = document.getElementById('prog-text');
+const progBar       = document.getElementById('prog-bar');
+
+function buildMain() {
+  quizScreen.innerHTML = '';
+  answered = 0; correctCount = 0; wrongIdxs = [];
+  let globalIdx = 0;
+  let lastLabel = '', lastInstr = '';
+  SECTIONS.forEach(sec => {
+    sec.blocks.forEach(block => {
+      if (sec.label !== lastLabel) {
+        const tab = document.createElement('div');
+        tab.className = 'sec-tab';
+        tab.innerHTML = `<div class="sec-tag">${sec.label}</div><div class="sec-line"></div><div class="sec-sub">${sec.sub}</div>`;
+        quizScreen.appendChild(tab);
+        lastLabel = sec.label;
+      }
+      const instr = document.createElement('p');
+      instr.className = 'instr';
+      instr.textContent = block.instr;
+      quizScreen.appendChild(instr);
+      block.qs.forEach((q, qi) => {
+        quizScreen.appendChild(makeCard(q, qi, globalIdx, false));
+        globalIdx++;
+      });
+    });
+  });
+  updateProg(0, TOTAL);
+}
+
+function buildRetry(questions, round) {
+  retryScreen.innerHTML = '';
+  retryAnswered = 0; retryCorrect = 0; retryWrong = [];
+  const hdr = document.createElement('div');
+  hdr.className = 'retry-header';
+  hdr.innerHTML = `<span>🔄 間違えた問題のみ解き直す</span><span class="retry-round">第${round}回目</span>`;
+  retryScreen.appendChild(hdr);
+  questions.forEach((q, i) => {
+    retryScreen.appendChild(makeCard(q, i, i, true));
+  });
+  updateProg(0, questions.length);
+}
+
+function makeCard(q, displayNum, trackIdx, isRetry) {
+  const card = document.createElement('div');
+  card.className = 'q-card';
+  const head = document.createElement('div');
+  head.className = 'q-head';
+  const badge = document.createElement('div');
+  badge.className = 'q-badge';
+  badge.textContent = `(${displayNum + 1})`;
+  const text = document.createElement('div');
+  text.className = 'q-text';
+  const lines = q.text.split('\n');
+  lines.forEach((line, li) => {
+    if (li > 0) text.appendChild(document.createElement('br'));
+    const sp = document.createElement('span');
+    sp.innerHTML = line.replace(/<em>(.*?)<\/em>/g, '<em>$1</em>');
+    text.appendChild(sp);
+  });
+  head.appendChild(badge);
+  head.appendChild(text);
+  card.appendChild(head);
+  const optsWrap = document.createElement('div');
+  optsWrap.className = 'q-opts';
+  q.opts.forEach((opt, oi) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt';
+    btn.innerHTML = `<span class="opt-n">${oi + 1}.</span><span class="opt-t">${opt}</span>`;
+    btn.addEventListener('click', function() {
+      if (card.dataset.done === '1') return;
+      card.dataset.done = '1';
+      const allBtns = optsWrap.querySelectorAll('.opt');
+      allBtns.forEach(b => b.disabled = true);
+      const tag = card.querySelector('.q-result-tag');
+      if (oi === q.ans) {
+        btn.classList.add('chosen-correct');
+        card.classList.add('is-correct');
+        tag.className = 'q-result-tag show ok';
+        tag.textContent = '⭕  正解！';
+        if (isRetry) retryCorrect++; else correctCount++;
+      } else {
+        btn.classList.add('chosen-wrong');
+        allBtns[q.ans].classList.add('reveal');
+        card.classList.add('is-wrong');
+        tag.className = 'q-result-tag show ng';
+        tag.textContent = `✕  不正解  ―  正解：${q.ans + 1}. ${q.opts[q.ans]}`;
+        if (isRetry) retryWrong.push(trackIdx); else wrongIdxs.push(trackIdx);
+      }
+      if (isRetry) {
+        retryAnswered++;
+        updateProg(retryAnswered, retrySet.length);
+        if (retryAnswered === retrySet.length) finishRetry();
+      } else {
+        answered++;
+        updateProg(answered, TOTAL);
+        if (answered === TOTAL) finishMain();
+      }
+    });
+    optsWrap.appendChild(btn);
+  });
+  card.appendChild(optsWrap);
+  const tag = document.createElement('div');
+  tag.className = 'q-result-tag';
+  card.appendChild(tag);
+  return card;
+}
+
+function finishMain() {
+  const pct = Math.round((correctCount / TOTAL) * 100);
+  showResults(correctCount, TOTAL, pct, wrongIdxs, ALL_QS, false);
+}
+
+function finishRetry() {
+  const pct = Math.round((retryCorrect / retrySet.length) * 100);
+  showResults(retryCorrect, retrySet.length, pct, retryWrong.length === 0 ? [] : retryWrong, retrySet, true);
+}
+
+function showResults(corr, tot, pct, badIdxs, qSource, isAfterRetry) {
+  quizScreen.style.display = 'none';
+  retryScreen.style.display = 'none';
+  resultsScreen.innerHTML = '';
+  resultsScreen.classList.add('show');
+  let grade;
+  if (pct === 100) grade = '🎖 満点！完璧です！';
+  else if (pct >= 90) grade = '🎯 優秀！もう少しで満点！';
+  else if (pct >= 70) grade = '👍 合格圏！あと一息！';
+  else if (pct >= 50) grade = '📚 もう少し！復習あるのみ！';
+  else grade = '💪 基礎から見直そう！';
+  const scoreCard = document.createElement('div');
+  scoreCard.className = 'res-score-card';
+  scoreCard.innerHTML = `
+    <div class="res-score-label">${isAfterRetry ? '解き直し結果' : '最終スコア'}</div>
+    <div class="res-score-num">⭕ ${corr}<span class="res-score-denom"> / ${tot}</span></div>
+    <div class="res-pct">${pct}%</div>
+    <div class="res-grade">${grade}</div>`;
+  resultsScreen.appendChild(scoreCard);
+  if (badIdxs.length > 0) {
+    const wTitle = document.createElement('div');
+    wTitle.className = 'wrong-section-title';
+    wTitle.textContent = `✕  間違えた問題　${badIdxs.length}問`;
+    resultsScreen.appendChild(wTitle);
+    badIdxs.forEach(idx => {
+      const q = qSource[idx];
+      const item = document.createElement('div');
+      item.className = 'wrong-item';
+      const plainText = q.text.replace(/<em>(.*?)<\/em>/g, '$1');
+      item.innerHTML = `<div class="wrong-item-head">${plainText}</div><div class="wrong-item-ans">${q.opts[q.ans]}</div>`;
+      resultsScreen.appendChild(item);
+    });
+  }
+  const btns = document.createElement('div');
+  btns.className = 'action-btns';
+  if (badIdxs.length > 0) {
+    const retryWrongBtn = document.createElement('button');
+    retryWrongBtn.className = 'act-btn primary';
+    retryWrongBtn.textContent = `✕ 間違えた問題のみ解き直す（${badIdxs.length}問）`;
+    retryWrongBtn.addEventListener('click', () => {
+      retryRound++;
+      retrySet = badIdxs.map(i => qSource[i]);
+      resultsScreen.classList.remove('show');
+      resultsScreen.innerHTML = '';
+      retryScreen.style.display = 'block';
+      retryScreen.classList.add('show');
+      buildRetry(retrySet, retryRound);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+    btns.appendChild(retryWrongBtn);
+  }
+  const retryAllBtn = document.createElement('button');
+  retryAllBtn.className = 'act-btn secondary';
+  retryAllBtn.textContent = '↩ 全ての問題を解き直す';
+  retryAllBtn.addEventListener('click', () => {
+    retryRound = 0;
+    resultsScreen.classList.remove('show');
+    resultsScreen.innerHTML = '';
+    retryScreen.style.display = 'none';
+    quizScreen.style.display = 'block';
+    buildMain();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+  btns.appendChild(retryAllBtn);
+  resultsScreen.appendChild(btns);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateProg(done, total) {
+  progText.textContent = `${done} / ${total}`;
+  progBar.style.width = `${(done / total) * 100}%`;
+}
+
+buildMain();
+</script>
+</body>
+</html>
